@@ -5,8 +5,9 @@
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
   "main": "index.js",
   "scripts": {
+    "build": "node scripts/copy & cordova  build android",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "run": "node copy & cordova run android -device"
+    "run": "node scripts/copy & cordova run android -device"
   },
   "keywords": [
     "ecosystem:cordova"
