@@ -3,7 +3,7 @@
  */
 const fs = require('fs'),
       path = require('path'),
-      sourcePath = path.resolve('../../Rose/apk'),
+      sourcePath = path.resolve(__dirname,'../../Rose/apk'),
       target = path.resolve(__dirname,'../www');
 
 del(target,()=>{

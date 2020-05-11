@@ -18,6 +18,11 @@
     <allow-intent href="geo:*" />
     <platform name="android">
         <allow-intent href="market:*" />
+        <icon density="ldpi" src="res/icon/android/roletask.png" />
+        <icon density="mdpi" src="res/icon/android/roletask.png" />
+        <icon density="hdpi" src="res/icon/android/roletask.png" />
+        <icon density="xhdpi" src="res/icon/android/roletask.png" />
+        <icon density="xxhdpi" src="res/icon/android/roletask.png" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
