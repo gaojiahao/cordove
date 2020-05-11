@@ -12,7 +12,12 @@
 |--jsconfig.json 项目中的js定义文件  
 |--package.json npm包声明 
 ``` 
-
+## 项目运行需要的软件
+安卓：
+1.android sdk
+2.gradle
+ios:
+xcode，生成xcode下ios项目，在xcode下编译（xcode会生成一次性签名证书用来测试）。cordova不能直接编译成ios安装包。
 ## 项目运行方法
 1.cordova 安装  
 `npm i -g cordova` //可以全局安装   

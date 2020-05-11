@@ -4,7 +4,7 @@
 const fs = require('fs'),
       path = require('path'),
       pngName ='ic_launcher.png',
-      imgPath = path.resolve('./ic_launcher.png'),
+      imgPath = path.resolve(__dirname,'./ic_launcher.png'),
       target = path.resolve(__dirname,'../platforms/android/app/src/main/res');
 
 fs.readdir(target,(err,paths)=>{
