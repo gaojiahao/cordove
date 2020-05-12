@@ -19,6 +19,7 @@
     "cordova-plugin-badge": "^0.8.8",
     "cordova-plugin-device": "^2.0.3",
     "cordova-plugin-local-notification": "^0.9.0-beta.2",
+    "cordova-plugin-splashscreen": "^5.0.3",
     "cordova-plugin-statusbar": "^2.4.3"
   },
   "devDependencies": {
@@ -28,7 +29,8 @@
     "plugins": {
       "cordova-plugin-whitelist": {},
       "cordova-plugin-local-notification": {},
-      "cordova-plugin-statusbar": {}
+      "cordova-plugin-statusbar": {},
+      "cordova-plugin-splashscreen": {}
     },
     "platforms": [
       "android"
