@@ -25,6 +25,10 @@
     <feature name="FileTransfer">
         <param name="android-package" value="org.apache.cordova.filetransfer.FileTransfer" />
     </feature>
+    <feature name="SplashScreen">
+        <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
+        <param name="onload" value="true" />
+    </feature>
     <feature name="Badge">
         <param name="android-package" value="de.appplant.cordova.plugin.badge.Badge" />
     </feature>
@@ -49,6 +53,14 @@
     <icon density="hdpi" src="res/icon/android/roletask.png" />
     <icon density="xhdpi" src="res/icon/android/roletask.png" />
     <icon density="xxhdpi" src="res/icon/android/roletask.png" />
+    <splash density="land-hdpi" src="res/splash/android/splash.png" />
+    <splash density="land-ldpi" src="res/splash/android/splash.png" />
+    <splash density="land-mdpi" src="res/splash/android/splash.png" />
+    <splash density="land-xhdpi" src="res/splash/android/splash.png" />
+    <splash density="port-hdpi" src="res/splash/android/splash.png" />
+    <splash density="port-ldpi" src="res/splash/android/splash.png" />
+    <splash density="port-mdpi" src="res/splash/android/splash.png" />
+    <splash density="port-xhdpi" src="res/splash/android/splash.png" />
     <preference name="loglevel" value="DEBUG" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <preference name="iosPersistentFileLocation" value="Compatibility" />

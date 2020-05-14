@@ -24,6 +24,15 @@
         <icon density="hdpi" src="res/icon/android/roletask.png" />
         <icon density="xhdpi" src="res/icon/android/roletask.png" />
         <icon density="xxhdpi" src="res/icon/android/roletask.png" />
+
+        <splash density="land-hdpi" src="res/splash/android/splash.png" />  
+        <splash density="land-ldpi" src="res/splash/android/splash.png" />  
+        <splash density="land-mdpi" src="res/splash/android/splash.png" />  
+        <splash density="land-xhdpi" src="res/splash/android/splash.png" />  
+        <splash density="port-hdpi" src="res/splash/android/splash.png" />  
+        <splash density="port-ldpi" src="res/splash/android/splash.png" />  
+        <splash density="port-mdpi" src="res/splash/android/splash.png" />  
+        <splash density="port-xhdpi" src="res/splash/android/splash.png" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />

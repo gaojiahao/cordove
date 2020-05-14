@@ -25,6 +25,9 @@
     },
     "cordova-plugin-file-transfer": {
       "PACKAGE_NAME": "com.refordom.roletask"
+    },
+    "cordova-plugin-splashscreen": {
+      "PACKAGE_NAME": "com.refordom.roletask"
     }
   },
   "dependent_plugins": {

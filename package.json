@@ -22,6 +22,7 @@
     "cordova-plugin-file-opener2": "git+https://github.com/pwlin/cordova-plugin-file-opener2.git",
     "cordova-plugin-file-transfer": "^1.7.1",
     "cordova-plugin-local-notification": "^0.9.0-beta.2",
+    "cordova-plugin-splashscreen": "^5.0.3",
     "cordova-plugin-statusbar": "^2.4.3"
   },
   "devDependencies": {
@@ -36,7 +37,8 @@
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
       "cordova-plugin-file": {},
-      "cordova-plugin-file-transfer": {}
+      "cordova-plugin-file-transfer": {},
+      "cordova-plugin-splashscreen": {}
     },
     "platforms": [
       "android"
