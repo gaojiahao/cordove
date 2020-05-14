@@ -15,6 +15,16 @@
     },
     "cordova-plugin-statusbar": {
       "PACKAGE_NAME": "com.refordom.roletask"
+    },
+    "cordova-plugin-file-opener2": {
+      "ANDROID_SUPPORT_V4_VERSION": "27.+",
+      "PACKAGE_NAME": "com.refordom.roletask"
+    },
+    "cordova-plugin-file": {
+      "PACKAGE_NAME": "com.refordom.roletask"
+    },
+    "cordova-plugin-file-transfer": {
+      "PACKAGE_NAME": "com.refordom.roletask"
     }
   },
   "dependent_plugins": {
