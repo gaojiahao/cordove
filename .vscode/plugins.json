@@ -1,1 +1,1 @@
-{"plugins":["cordova-plugin-whitelist","cordova-plugin-local-notification","cordova-plugin-device","cordova-plugin-badge","cordova-plugin-statusbar","cordova-plugin-file-opener2","cordova-plugin-file","cordova-plugin-file-transfer"]}
+{"plugins":["cordova-plugin-whitelist","cordova-plugin-local-notification","cordova-plugin-device","cordova-plugin-badge","cordova-plugin-statusbar","cordova-plugin-file-opener2","cordova-plugin-file","cordova-plugin-file-transfer","cordova-plugin-splashscreen"]}
