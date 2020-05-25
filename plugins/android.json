@@ -28,6 +28,9 @@
     },
     "cordova-plugin-splashscreen": {
       "PACKAGE_NAME": "com.refordom.roletask"
+    },
+    "cordova-plugin-vibration": {
+      "PACKAGE_NAME": "com.refordom.roletask"
     }
   },
   "dependent_plugins": {

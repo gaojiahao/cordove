@@ -32,7 +32,7 @@
     <feature name="Badge">
         <param name="android-package" value="de.appplant.cordova.plugin.badge.Badge" />
     </feature>
-    <name>roletask</name>
+    <name>路塔流程</name>
     <description>
         路塔流程，连接断点，业务单元流程端到端一体化
     </description>
@@ -48,11 +48,11 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
     <allow-intent href="market:*" />
-    <icon density="ldpi" src="res/icon/android/roletask.png" />
-    <icon density="mdpi" src="res/icon/android/roletask.png" />
-    <icon density="hdpi" src="res/icon/android/roletask.png" />
-    <icon density="xhdpi" src="res/icon/android/roletask.png" />
-    <icon density="xxhdpi" src="res/icon/android/roletask.png" />
+    <icon density="ldpi" src="res/icon/android/logo-0522-500.png" />
+    <icon density="mdpi" src="res/icon/android/logo-0522-500.png" />
+    <icon density="hdpi" src="res/icon/android/logo-0522-500.png" />
+    <icon density="xhdpi" src="res/icon/android/logo-0522-500.png" />
+    <icon density="xxhdpi" src="res/icon/android/logo-0522-500.png" />
     <splash density="land-hdpi" src="res/splash/android/splash.png" />
     <splash density="land-ldpi" src="res/splash/android/splash.png" />
     <splash density="land-mdpi" src="res/splash/android/splash.png" />
