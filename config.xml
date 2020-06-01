@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.refordom.roletask" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>roletask</name>
+    <name>路塔流程</name>
     <description>
         路塔流程，连接断点，业务单元流程端到端一体化
     </description>
@@ -19,20 +19,20 @@
     <platform name="android">
         <allow-intent href="market:*" />
         
-        <icon density="ldpi" src="res/icon/android/roletask.png" />
-        <icon density="mdpi" src="res/icon/android/roletask.png" />
-        <icon density="hdpi" src="res/icon/android/roletask.png" />
-        <icon density="xhdpi" src="res/icon/android/roletask.png" />
-        <icon density="xxhdpi" src="res/icon/android/roletask.png" />
+        <icon density="ldpi" src="res/icon/android/logo-0522-500.png" />
+        <icon density="mdpi" src="res/icon/android/logo-0522-500.png" />
+        <icon density="hdpi" src="res/icon/android/logo-0522-500.png" />
+        <icon density="xhdpi" src="res/icon/android/logo-0522-500.png" />
+        <icon density="xxhdpi" src="res/icon/android/logo-0522-500.png" />
 
-        <splash density="land-hdpi" src="res/splash/android/splash.png" />  
-        <splash density="land-ldpi" src="res/splash/android/splash.png" />  
-        <splash density="land-mdpi" src="res/splash/android/splash.png" />  
-        <splash density="land-xhdpi" src="res/splash/android/splash.png" />  
-        <splash density="port-hdpi" src="res/splash/android/splash.png" />  
-        <splash density="port-ldpi" src="res/splash/android/splash.png" />  
-        <splash density="port-mdpi" src="res/splash/android/splash.png" />  
-        <splash density="port-xhdpi" src="res/splash/android/splash.png" />
+        <splash density="land-hdpi" src="res/splash/android/rt-splash.png" />  
+        <splash density="land-ldpi" src="res/splash/android/rt-splash.png" />  
+        <splash density="land-mdpi" src="res/splash/android/rt-splash.png" />  
+        <splash density="land-xhdpi" src="res/splash/android/rt-splash.png" />  
+        <splash density="port-hdpi" src="res/splash/android/rt-splash.png" />  
+        <splash density="port-ldpi" src="res/splash/android/rt-splash.png" />  
+        <splash density="port-mdpi" src="res/splash/android/rt-splash.png" />  
+        <splash density="port-xhdpi" src="res/splash/android/rt-splash.png" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
