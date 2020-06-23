@@ -21,6 +21,7 @@ package com.refordom.roletask;
 
 import android.os.Bundle;
 import org.apache.cordova.*;
+import android.content.Intent;
 
 public class MainActivity extends CordovaActivity
 {
@@ -35,7 +36,21 @@ public class MainActivity extends CordovaActivity
             moveTaskToBack(true);
         }
 
+        startForegroundService(new Intent(this, DeskService.class));
+
+
         // Set by <content src="index.html" /> in config.xml
         loadUrl(launchUrl);
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event){
+
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            moveTaskToBack(true);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 }

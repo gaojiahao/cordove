@@ -7,6 +7,7 @@
   "scripts": {
     "build": "node scripts/copy & cordova  build android",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "avd": "cd scripts & avd",
     "run": "node scripts/copy & cordova run android -device"
   },
   "keywords": [
