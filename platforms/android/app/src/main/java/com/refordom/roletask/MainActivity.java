@@ -19,6 +19,7 @@
 
 package com.refordom.roletask;
 
+import android.content.Intent;
 import android.os.Bundle;
 import org.apache.cordova.*;
 import android.content.Intent;
@@ -41,6 +42,13 @@ public class MainActivity extends CordovaActivity
 
         // Set by <content src="index.html" /> in config.xml
         loadUrl(launchUrl);
+        startService();
+    }
+    public void startService(){                  
+        startService(new Intent(getBaseContext(),DSService.class));
+    }
+    public  void stopService(){
+        stopService(new Intent(getBaseContext(),DSService.class));
     }
 
     @Override

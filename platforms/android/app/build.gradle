@@ -163,6 +163,11 @@ cdvBuildRelease.dependsOn {
     return computeBuildTargetName(false)
 }
 
+task example {
+  println"I want to set a breakpoint here"
+}
+//task preBuild
+preBuild.dependsOn(example)
 task cdvPrintProps {
     doLast {
         println('cdvCompileSdkVersion=' + cdvCompileSdkVersion)
