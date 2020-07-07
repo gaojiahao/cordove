@@ -24,6 +24,7 @@ import android.os.Bundle;
 
 import org.apache.cordova.*;
 import android.content.Intent;
+import android.view.KeyEvent;
 
 public class MainActivity extends CordovaActivity
 {
@@ -59,8 +60,8 @@ public class MainActivity extends CordovaActivity
         if(keyCode == KeyEvent.KEYCODE_BACK){
             moveTaskToBack(true);
             return true;
-        }
+        }
         return super.onKeyDown(keyCode, event);
-    }
+    }
 
 }
