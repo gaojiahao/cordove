@@ -254,6 +254,14 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       "clobbers": [
         "window.FileTransfer"
       ]
+    },
+    {
+      "id": "cordova-plugin-dsService.DsService",
+      "file": "plugins/cordova-plugin-dsService/www/DsService.js",
+      "pluginId": "cordova-plugin-dsService",
+      "clobbers": [
+        "DsService"
+      ]
     }
   ];
   module.exports.metadata = {
@@ -266,6 +274,7 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
     "cordova-plugin-file": "6.0.2",
     "cordova-plugin-file-transfer": "1.7.1",
     "cordova-plugin-splashscreen": "5.0.3",
-    "cordova-plugin-vibration": "3.1.1"
+    "cordova-plugin-vibration": "3.1.1",
+    "cordova-plugin-dsService": "1.0.0"
   };
 });

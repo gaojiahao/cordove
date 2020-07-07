@@ -78,5 +78,13 @@
     },
     "is_top_level": true,
     "variables": {}
+  },
+  "cordova-plugin-dsService": {
+    "source": {
+      "type": "local",
+      "path": "E:\\source\\cordova\\node_modules\\ds"
+    },
+    "is_top_level": true,
+    "variables": {}
   }
 }

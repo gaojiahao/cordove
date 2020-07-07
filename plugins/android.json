@@ -31,6 +31,9 @@
     },
     "cordova-plugin-vibration": {
       "PACKAGE_NAME": "com.refordom.roletask"
+    },
+    "cordova-plugin-dsService": {
+      "PACKAGE_NAME": "com.refordom.roletask"
     }
   },
   "dependent_plugins": {
