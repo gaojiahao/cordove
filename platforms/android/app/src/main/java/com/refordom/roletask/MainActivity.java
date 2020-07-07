@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.apache.cordova.*;
+import android.content.Intent;
 
 public class MainActivity extends CordovaActivity
 {
@@ -37,6 +38,9 @@ public class MainActivity extends CordovaActivity
             moveTaskToBack(true);
         }
 
+        startForegroundService(new Intent(this, DeskService.class));
+
+
         // Set by <content src="index.html" /> in config.xml
         loadUrl(launchUrl);
         startService(); //显式启动，后面会修改成隐式启动
@@ -48,5 +52,15 @@ public class MainActivity extends CordovaActivity
     public  void stopService(){
         stopService(new Intent(getBaseContext(),DSService.class));
     }
-     
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event){
+
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            moveTaskToBack(true);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 }
