@@ -44,15 +44,18 @@ public class DSService extends Service {
    @Override
    public void onCreate() {
       super.onCreate();
+//      keeyAlive();
+      Log.i(TAG, "onCreate");
+      //注册一个服务
+      registerServerReceive();
+   }
+   private void keeyAlive(){
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2){
          Notification.Builder builder = createBuilder("keep App alive","Deamon Service is Run");
          startForeground(NOTICE_ID, builder.build());
       } else {
          startForeground(NOTICE_ID,new Notification());
       }
-      Log.i(TAG, "onCreate");
-      //注册一个服务
-      registerServerReceive();
    }
    private Notification.Builder createBuilder(String title,String text){
       Notification.Builder builder = new Notification.Builder(this);
@@ -192,7 +195,7 @@ public class DSService extends Service {
       }
    }
    private void doNotification(JsonObject msg){
-      String creatorName = msg.get("creatorName").getAsString();
+      String creatorName = msg.has("creatorName") ? msg.get("creatorName").getAsString() : "";
       String title = String.format("来自%s的消息：",creatorName);
       String text = msg.get("content").getAsString();
       Notification.Builder builder = createBuilder(title,text);
