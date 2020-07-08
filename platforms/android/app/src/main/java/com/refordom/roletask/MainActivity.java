@@ -20,14 +20,20 @@
 package com.refordom.roletask;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import org.apache.cordova.*;
 import android.content.Intent;
+import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.view.KeyEvent;
+
+import de.appplant.cordova.plugin.notification.Builder;
 
 public class MainActivity extends CordovaActivity
 {
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -38,30 +44,38 @@ public class MainActivity extends CordovaActivity
         if (extras != null && extras.getBoolean("cdvStartInBackground", false)) {
             moveTaskToBack(true);
         }
-
-        startForegroundService(new Intent(this, DeskService.class));
-
-
         // Set by <content src="index.html" /> in config.xml
+        Log.i(TAG,"loadUrl");
         loadUrl(launchUrl);
+        keepAlive();//保活
         startService(); //显式启动，后面会修改成隐式启动
     }
-
+    private void keepAlive(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(new Intent(this, DeskService.class)); //前台服务
+        } else {
+            startService(new Intent(this, DeskService.class));
+        }
+    }
     public void startService(){
-        startService(new Intent(getBaseContext(),DSService.class));
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(new Intent(getBaseContext(), DSService.class));
+        } else {
+            startService(new Intent(getBaseContext(), DSService.class));
+        }
     }
     public  void stopService(){
         stopService(new Intent(getBaseContext(),DSService.class));
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event){
-
-        if(keyCode == KeyEvent.KEYCODE_BACK){
-            moveTaskToBack(true);
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event){
+//
+//        if(keyCode == KeyEvent.KEYCODE_BACK){
+//            moveTaskToBack(true);
+//            return true;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
 
 }

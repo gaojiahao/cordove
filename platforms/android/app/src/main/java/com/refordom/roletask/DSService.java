@@ -10,8 +10,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
@@ -35,6 +37,7 @@ import com.refordom.roletask.MainActivity;
 public class DSService extends Service {
    private String TAG = "DSService";
    public static final int NOTICE_ID = 100;
+   private String CacheTag = "dsCache";
    private DeepstreamClient client;
    private  int progress;
    private ActionReceiver actionReceiver;
@@ -46,8 +49,8 @@ public class DSService extends Service {
       super.onCreate();
 //      keeyAlive();
       Log.i(TAG, "onCreate");
-      //注册一个服务
-      registerServerReceive();
+      //注册一个接收器，接收cordova要执行的动作。
+      registerReceive();
    }
    private void keeyAlive(){
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2){
@@ -87,7 +90,7 @@ public class DSService extends Service {
       }
       return builder;
    }
-   private void registerServerReceive(){
+   private void registerReceive(){
       actionReceiver = new ActionReceiver();
       IntentFilter intentFilter = new IntentFilter();
       intentFilter.addAction("com.refordom.roletask.ACTION");
@@ -114,6 +117,7 @@ public class DSService extends Service {
          NotificationManager mManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
          mManager.cancel(NOTICE_ID);
      }
+      close();
      // 重启自己
      Intent intent = new Intent(getApplicationContext(), DSService.class);
      startService(intent);
@@ -135,7 +139,7 @@ public class DSService extends Service {
 		return "";
 	}
    public void startThead(){
-      new Thread(new Runnable() { 
+      new Thread(new Runnable() {
      
          @Override
          public void run() { 
@@ -144,12 +148,13 @@ public class DSService extends Service {
                progress += 1;
                if (client != null){
                   status = client.getConnectionState().toString();
+               } else {
+                  autoLogin();
                }
                //发送Action为com.example.communication.RECEIVER的广播
                intent.putExtra("status",status);
                intent.putExtra("progress", progress); 
-               sendBroadcast(intent); 
-                  
+               sendBroadcast(intent);
                try { 
                   Thread.sleep(5000); 
                } catch (InterruptedException e) { 
@@ -160,7 +165,16 @@ public class DSService extends Service {
           } 
         }).start();
    }
+   public void autoLogin(){
+      SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
+      String url = sp.getString("url",null);
+      if(url != null){
+          login(url,sp.getString("",""));
+      }
+   }
    public Boolean login(String url, String uid){
+      SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
+      sp.edit().putString("url",url).putString("uid",uid).commit();
       DeepstreamFactory factory = DeepstreamFactory.getInstance();
       if (client != null){
          client.close();
@@ -195,25 +209,29 @@ public class DSService extends Service {
       }
    }
    private void doNotification(JsonObject msg){
+      int imType = msg.get("imType").getAsInt();
+      if(imType != 1 && imType != 2 && imType != 3 && imType != 4) return;//这一类是消息
       String creatorName = msg.has("creatorName") ? msg.get("creatorName").getAsString() : "";
       String title = String.format("来自%s的消息：",creatorName);
       String text = msg.get("content").getAsString();
+      String groupId = msg.get("groupId").getAsString();
       Notification.Builder builder = createBuilder(title,text);
+      applyContentReceiver(builder,groupId);
       Notification notification = builder.build() ;
       //channelId为本条通知的id
       NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
       manager.notify(NOTICE_ID,notification);
    }
-   private void applyContentReceiver(Notification.Builder builder) {
+   private void applyContentReceiver(Notification.Builder builder,String groupId) {
       Context context = getApplicationContext();
-      Intent intent = new Intent(getApplicationContext(), MainActivity.class)
-              .setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-
       int reqCode = random.nextInt();
-
+      Intent intent = new Intent(getBaseContext(),MainActivity.class);
+      Bundle bundle = new Bundle();
+      bundle.putString("groupId",groupId);
+      intent.putExtras(bundle);
       PendingIntent contentIntent = PendingIntent.getActivity(
               context, reqCode, intent, FLAG_UPDATE_CURRENT);
-
+      Log.i(TAG,"set goupId" + groupId);
       builder.setContentIntent(contentIntent);
    }
    private void subscribeEvent(DeepstreamClient client,String uid) {
@@ -223,6 +241,7 @@ public class DSService extends Service {
           public void onEvent(String eventName, Object args) {
               JsonObject parameters = (JsonObject) args;
               doNotification(parameters);
+              intent.setAction("receiveMsg");
               intent.putExtra("msg", parameters.toString());
               sendBroadcast(intent);
               intent.removeExtra("msg");

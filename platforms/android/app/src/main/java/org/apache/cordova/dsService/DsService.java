@@ -5,7 +5,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Binder;
+import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.refordom.roletask.MainActivity;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -22,7 +27,12 @@ public class DsService extends CordovaPlugin {
     private Intent intent = new Intent("com.refordom.roletask.ACTION");
     private MsgReceiver msgReceiver;
     private CallbackContext msgCallbackContext = null;
+    private CallbackContext notificationClickCallbackContext = null;
+    private String notificationClickGroupId = null;
     protected void pluginInitialize() {
+        Intent intent = cordova.getActivity().getIntent();
+        Log.i(TAG,"pluginInitialize");
+        handlerRouter(intent);
         registryDsEvent();
     }
     @Override
@@ -38,6 +48,12 @@ public class DsService extends CordovaPlugin {
         } else if(action.equals("close")){
             this.close(callbackContext);
             return true;
+        } else if(action.equals("onNotificationClick")){
+            this.bindNotificationClick(callbackContext);
+            return true;
+        } else if(action.equals("dsStatus")){
+            this.getDsStatus(callbackContext);
+            return  true;
         }
         return false;
     }
@@ -47,6 +63,27 @@ public class DsService extends CordovaPlugin {
         PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);
+    }
+    private  void getDsStatus(CallbackContext callbackContext){
+
+    }
+    private void handlerRouter(Intent intent){
+        Bundle bundle = intent.getExtras();
+        if(bundle != null){
+            String groupId = bundle.getString("groupId");
+            if (notificationClickCallbackContext != null){
+                PluginResult result = new PluginResult(PluginResult.Status.OK, groupId);
+                result.setKeepCallback(true);
+                notificationClickCallbackContext.sendPluginResult(result);
+                Log.i(TAG, "notificationClickCallbackContext is not null");
+            } else {
+                notificationClickGroupId = groupId;
+            }
+            console("被拉起");
+            Log.i(TAG, "bundle:" + groupId);
+        } else {
+            console("自启动");
+        }
     }
     private void registryDsEvent(){
          //动态注册广播接收器 
@@ -69,6 +106,17 @@ public class DsService extends CordovaPlugin {
         getContext().sendBroadcast(intent);
         callbackContext.success();
     }
+    private void bindNotificationClick(CallbackContext callbackContext){
+        notificationClickCallbackContext = callbackContext;
+        PluginResult pluginResult;
+        if (notificationClickGroupId != null){
+            pluginResult = new PluginResult(PluginResult.Status.OK,notificationClickGroupId);
+        } else {
+            pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+        }
+        pluginResult.setKeepCallback(true);
+        callbackContext.sendPluginResult(pluginResult);
+    }
     public void console(String msg){
         String js =  String.format("console.log('%s')",msg);
         ((Activity)getContext()).runOnUiThread(new Runnable() {
@@ -76,6 +124,11 @@ public class DsService extends CordovaPlugin {
                 webView.loadUrl("javascript:" + js);
             }
         });
+    }
+    @Override
+    public void onNewIntent(Intent intent){
+        Log.i(TAG,"onNewIntent");
+        handlerRouter(intent);
     }
     @Override
     public void onDestroy(){
@@ -97,17 +150,18 @@ public class DsService extends CordovaPlugin {
         public void onReceive(Context context, Intent intent) {
             //
 
-            if(intent.hasExtra("msg")){ //得到的是消息
+            if(intent.getAction().equals("receiveMsg")) { //得到的是消息
                 String msg = intent.getStringExtra("msg");
                 if (msgCallbackContext != null) {
                     PluginResult result = new PluginResult(PluginResult.Status.OK, msg);
                     result.setKeepCallback(true);
                     msgCallbackContext.sendPluginResult(result);
                 }
-            }else {
+            } else {
                 int progress = intent.getIntExtra("progress", 0);
                 String status = intent.getStringExtra("status");
                 String str = String.format("来自service%d,status:%s",progress,status);
+                Toast.makeText(context,"service alive",Toast.LENGTH_LONG);
                 console(str);
             }
         }
