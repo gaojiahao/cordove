@@ -8,7 +8,8 @@
     "build": "node scripts/copy & cordova  build android",
     "test": "cordova run android --emulator --nobuild",
     "avd": "cd scripts & avd",
-    "run": "node scripts/copy & cordova run android -device"
+    "run": "node scripts/copy & cordova run android -device",
+    "install": "cd scripts & install"
   },
   "keywords": [
     "ecosystem:cordova"

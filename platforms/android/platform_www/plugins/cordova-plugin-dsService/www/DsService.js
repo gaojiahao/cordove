@@ -7,9 +7,8 @@ exports.getDsMsg = function (success, error) {
 exports.onNotificationClick = function(handler){
     exec(handler,null,"DsService","onNotificationClick",null);
 }
-exports.login = function (uid, success, error) {
+exports.login = function (dsUrl,uid, success, error) {
     var protocol = (window.baseURL||'').indexOf('https') == 0 ? 'wss':'ws',
-        dsUrl = "175.roletask.com:6021/deepstream",
         url = protocol + '://' + dsUrl;
         
     exec(success, error, 'DsService', 'login', [url,uid]);

@@ -180,7 +180,9 @@ public class DSService extends Service {
          client.close();
       }
       try {
+          Log.i(TAG,"dsUrl:" + url);
          client = factory.getClient(url);
+         Log.i(TAG,"client status:" + client.getConnectionState().toString());
          Boolean rs = doLogin(client,uid);
          if(rs){
             subscribeEvent(client,uid);
