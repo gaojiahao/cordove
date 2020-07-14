@@ -153,7 +153,8 @@ public class DSService extends Service {
                }
                //发送Action为com.example.communication.RECEIVER的广播
                intent.putExtra("status",status);
-               intent.putExtra("progress", progress); 
+               intent.putExtra("progress", progress);
+               Log.i(TAG,"progress" + String.format("%b",progress) + "status:" + status);
                sendBroadcast(intent);
                try { 
                   Thread.sleep(5000); 

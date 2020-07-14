@@ -29,6 +29,10 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import de.appplant.cordova.plugin.notification.Builder;
 
 public class MainActivity extends CordovaActivity
@@ -45,8 +49,8 @@ public class MainActivity extends CordovaActivity
             moveTaskToBack(true);
         }
         // Set by <content src="index.html" /> in config.xml
-        Log.i(TAG,"loadUrl");
         loadUrl(launchUrl);
+        addScripts();
         keepAlive();//保活
         startService(); //显式启动，后面会修改成隐式启动
     }
@@ -56,6 +60,19 @@ public class MainActivity extends CordovaActivity
         } else {
             startService(new Intent(this, DeskService.class));
         }
+    }
+    //添加js变量支持
+    private void addScripts(){
+        Properties properties = new Properties();
+        try{
+            InputStream in = this.getAssets().open("appConfig");
+            properties.load(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String serverUrl = properties.getProperty("serverUrl","");
+        String js = String.format("javascript:baseURL = '%s';",serverUrl);
+        appView.loadUrlIntoView(js,false);
     }
     public void startService(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -67,7 +84,14 @@ public class MainActivity extends CordovaActivity
     public  void stopService(){
         stopService(new Intent(getBaseContext(),DSService.class));
     }
-
+    @Override
+    public Object onMessage(String id, Object data) {
+        if("onPageFinished".equals(id)){
+            Log.i(TAG,"page finished:" + (String)data);
+            addScripts();
+        }
+         return super.onMessage(id,data);
+    }
 //    @Override
 //    public boolean onKeyDown(int keyCode, KeyEvent event){
 //
