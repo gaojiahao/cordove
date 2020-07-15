@@ -1,10 +1,13 @@
+const { config } = require('process');
+
 /**
  * 把Rose项目开发的web文件打包进来。
  */
 const fs = require('fs'),
       path = require('path'),
       sourcePath = path.resolve(__dirname,'../../Rose/apk'),
-      target = path.resolve(__dirname,'../www');
+      target = path.resolve(__dirname,'../www'),
+      configFile = path.resolve(target,'./config.js');
 
 del(target,()=>{
    copy(sourcePath);
@@ -83,6 +86,10 @@ function del(dirPath,cb){
             if(i<l){
                 filePath = paths[i];
                 fullFilePath = path.resolve(dirPath,filePath);
+                if(fullFilePath == configFile){
+                    i++;
+                    loop();
+                } else
                 fs.stat(fullFilePath,(err,stat)=>{
                     if(stat.isDirectory()) {
                         fn(fullFilePath,function(){

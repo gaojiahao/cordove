@@ -37,6 +37,7 @@ import com.refordom.roletask.MainActivity;
 public class DSService extends Service {
    private String TAG = "DSService";
    public static final int NOTICE_ID = 100;
+   private Notification.Builder noticeBuiler = null;
    private String CacheTag = "dsCache";
    private DeepstreamClient client;
    private  int progress;
@@ -47,29 +48,25 @@ public class DSService extends Service {
    @Override
    public void onCreate() {
       super.onCreate();
-//      keeyAlive();
       Log.i(TAG, "onCreate");
       //注册一个接收器，接收cordova要执行的动作。
       registerReceive();
    }
-   private void keeyAlive(){
+   private void setForegroud(){
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2){
-         Notification.Builder builder = createBuilder("keep App alive","Deamon Service is Run");
-         startForeground(NOTICE_ID, builder.build());
+         Notification.Builder builder = createBuilder("refordom.roletask.com.dsService","dsService");
+         //  builder.setSmallIcon(R.mipmap.ic_launcher); 如果不设置图标，就不会显示真实标题和内容
+         builder.setContentTitle("keep App alive");
+         builder.setContentText("Deamon Service is Run");
+         startForeground(1, builder.build());
       } else {
-         startForeground(NOTICE_ID,new Notification());
+         startForeground(1,new Notification());
       }
    }
-   private Notification.Builder createBuilder(String title,String text){
+   private Notification.Builder createBuilder(String CHANNEL_ONE_ID ,String CHANNEL_ONE_NAME){
       Notification.Builder builder = new Notification.Builder(this);
-      builder.setSmallIcon(R.mipmap.ic_launcher);
-      builder.setContentTitle(title);
-      builder.setContentText(text);
       builder.setWhen(System.currentTimeMillis());
-     //builder.setLargeIcon(R.mipmap.ic_launcher);
       if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-         String CHANNEL_ONE_ID = "refordom.roletask.com";
-         String CHANNEL_ONE_NAME = "Channel One";
          NotificationChannel notificationChannel = null;
          notificationChannel = new NotificationChannel(CHANNEL_ONE_ID,
                  CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_HIGH);
@@ -105,6 +102,7 @@ public class DSService extends Service {
    @Override
    public int onStartCommand(Intent intent,int flag, int startId){
       startThead();
+      setForegroud();//设置前台服务
       return START_STICKY;
    }
    @Override
@@ -118,6 +116,7 @@ public class DSService extends Service {
          mManager.cancel(NOTICE_ID);
      }
       close();
+      stopForeground(true);//取消前台通知
      // 重启自己
      Intent intent = new Intent(getApplicationContext(), DSService.class);
      startService(intent);
@@ -154,7 +153,7 @@ public class DSService extends Service {
                //发送Action为com.example.communication.RECEIVER的广播
                intent.putExtra("status",status);
                intent.putExtra("progress", progress);
-               Log.i(TAG,"progress" + String.format("%b",progress) + "status:" + status);
+               Log.i(TAG,"progress:" + String.format("%d",progress) + ",status:" + status);
                sendBroadcast(intent);
                try { 
                   Thread.sleep(5000); 
@@ -168,9 +167,11 @@ public class DSService extends Service {
    }
    public void autoLogin(){
       SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
-      String url = sp.getString("url",null);
-      if(url != null){
-          login(url,sp.getString("",""));
+      String uid = sp.getString("uid",null);
+      if(uid != null){
+          String  url = sp.getString("url","");
+          Log.i(TAG,"autoLogin,url:" + url + ",uid:" + uid);
+          login(url,uid);
       }
    }
    public Boolean login(String url, String uid){
@@ -181,12 +182,15 @@ public class DSService extends Service {
          client.close();
       }
       try {
-          Log.i(TAG,"dsUrl:" + url);
+          Log.i(TAG,"connect,dsUrl:" + url);
          client = factory.getClient(url);
-         Log.i(TAG,"client status:" + client.getConnectionState().toString());
          Boolean rs = doLogin(client,uid);
          if(rs){
             subscribeEvent(client,uid);
+            Log.i(TAG,"login success!");
+         } else {
+            Log.i(TAG,"login fail!");
+            close();
          }
          return rs;
       } catch (URISyntaxException e) {
@@ -196,8 +200,10 @@ public class DSService extends Service {
       return false;
    }
    public void close(){
+      SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
       if (client != null){
          client.close();
+         sp.edit().remove("uid").commit();
       }
    }
    private Boolean doLogin(DeepstreamClient client,String uid){
@@ -218,12 +224,16 @@ public class DSService extends Service {
       String title = String.format("来自%s的消息：",creatorName);
       String text = msg.get("content").getAsString();
       String groupId = msg.get("groupId").getAsString();
-      Notification.Builder builder = createBuilder(title,text);
-      applyContentReceiver(builder,groupId);
-      Notification notification = builder.build() ;
+      Log.i(TAG,"msg:" + text);
+      if (noticeBuiler == null){
+         noticeBuiler = createBuilder("refordom.roletask.com.notice","消息通知");
+      }
+      noticeBuiler.setContentTitle(title);
+      noticeBuiler.setContentText(text);
+      applyContentReceiver(noticeBuiler,groupId);
       //channelId为本条通知的id
       NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-      manager.notify(NOTICE_ID,notification);
+      manager.notify(NOTICE_ID,noticeBuiler.build());
    }
    private void applyContentReceiver(Notification.Builder builder,String groupId) {
       Context context = getApplicationContext();
@@ -234,7 +244,6 @@ public class DSService extends Service {
       intent.putExtras(bundle);
       PendingIntent contentIntent = PendingIntent.getActivity(
               context, reqCode, intent, FLAG_UPDATE_CURRENT);
-      Log.i(TAG,"set goupId" + groupId);
       builder.setContentIntent(contentIntent);
    }
    private void subscribeEvent(DeepstreamClient client,String uid) {

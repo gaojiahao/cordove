@@ -1,23 +1,36 @@
 package org.apache.cordova.dsService;
 
 import android.app.Activity;
+import android.app.KeyguardManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Binder;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
 import com.refordom.roletask.MainActivity;
+import com.refordom.roletask.R;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
 
+import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 /**
  * This class echoes a string called from JavaScript.
@@ -26,6 +39,7 @@ public class DsService extends CordovaPlugin {
     public static final String TAG = "DsService";
     private Intent intent = new Intent("com.refordom.roletask.ACTION");
     private MsgReceiver msgReceiver;
+    public static final int NOTICE_ID = 101;
     private CallbackContext msgCallbackContext = null;
     private CallbackContext notificationClickCallbackContext = null;
     private String notificationClickGroupId = null;
@@ -85,6 +99,9 @@ public class DsService extends CordovaPlugin {
             console("自启动");
         }
     }
+    /**
+     * 接收服务发过来的消息
+     * */
     private void registryDsEvent(){
          //动态注册广播接收器 
          msgReceiver = new MsgReceiver(); 
@@ -106,6 +123,37 @@ public class DsService extends CordovaPlugin {
         getContext().sendBroadcast(intent);
         callbackContext.success();
     }
+    private Notification.Builder createBuilder(String title, String text){
+        Context context = getContext();//Activity
+        Notification.Builder builder = new Notification.Builder(context);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setContentTitle(title);
+        builder.setContentText(text);
+        builder.setWhen(System.currentTimeMillis());
+        //builder.setLargeIcon(R.mipmap.ic_launcher);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            String CHANNEL_ONE_ID = "refordom.roletask.com";
+            String CHANNEL_ONE_NAME = "Channel One";
+            NotificationChannel notificationChannel = null;
+            notificationChannel = new NotificationChannel(CHANNEL_ONE_ID,
+                    CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_HIGH);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.setShowBadge(true);
+            notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            NotificationManager manager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+            manager.createNotificationChannel(notificationChannel);
+            builder.setChannelId(CHANNEL_ONE_ID);
+            if(notificationChannel.getImportance() == NotificationManager.IMPORTANCE_NONE) {
+                Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName());
+                intent.putExtra(Settings.EXTRA_CHANNEL_ID, notificationChannel.getId());
+                context.startActivity(intent);
+                Toast.makeText(context, "通知不能关闭，请手动将通知打开", Toast.LENGTH_SHORT).show();
+            }
+        }
+        return builder;
+    }
     private void bindNotificationClick(CallbackContext callbackContext){
         notificationClickCallbackContext = callbackContext;
         PluginResult pluginResult;
@@ -116,6 +164,22 @@ public class DsService extends CordovaPlugin {
         }
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);
+    }
+    /**
+     * If the app is running in foreground.
+     */
+    private boolean isInForeground() {
+        if (webView == null)
+            return false;
+
+        KeyguardManager km = (KeyguardManager) webView.getContext()
+                .getSystemService(Context.KEYGUARD_SERVICE);
+
+        //noinspection SimplifiableIfStatement
+        if (km != null && km.isKeyguardLocked())
+            return false;
+
+        return webView.getView().getWindowVisibility() == View.VISIBLE;
     }
     public void console(String msg){
         String js =  String.format("console.log('%s')",msg);

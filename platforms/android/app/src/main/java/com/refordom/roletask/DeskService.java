@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 /**
@@ -19,7 +20,7 @@ import android.util.Log;
 public class DeskService extends Service {
 
     private static final String TAG = "DaemonService";
-    public static final int NOTICE_ID = 100;
+    public static final int NOTICE_ID = 101;
 
     @Nullable
     @Override
@@ -47,20 +48,19 @@ public class DeskService extends Service {
         // } else {
         //     startForeground(NOTICE_ID, new Notification());
         // }
-
         String CHANNEL_ID = "com.refordom.roletask.N0001";
-    	String CHANNEL_NAME = "TEST";
-    	NotificationChannel notificationChannel = null;
+        String CHANNEL_NAME = "TEST";
+        Notification.Builder builder = new Notification.Builder(this);
+        builder.setContentTitle("This is content title").
+        //setSmallIcon(R.mipmap.ic_launcher).
+        setContentText("This is content text");
     	if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
-    	    notificationChannel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
     	    NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-     	   notificationManager.createNotificationChannel(notificationChannel);
+            notificationManager.createNotificationChannel(notificationChannel);
+            builder.setChannelId(CHANNEL_ID);
    		}
-        Intent intent = new Intent(this, MainActivity.class);
-        Notification notification = new Notification.Builder(this,CHANNEL_ID).
-                setContentTitle("This is content title").
-                setContentText("This is content text").build();
-        startForeground(1, notification);
+        startForeground(1, builder.build());
     }
 
 

@@ -50,8 +50,7 @@ public class MainActivity extends CordovaActivity
         }
         // Set by <content src="index.html" /> in config.xml
         loadUrl(launchUrl);
-        addScripts();
-        keepAlive();//保活
+       // keepAlive();//保活
         startService(); //显式启动，后面会修改成隐式启动
     }
     private void keepAlive(){
@@ -88,9 +87,9 @@ public class MainActivity extends CordovaActivity
     public Object onMessage(String id, Object data) {
         if("onPageFinished".equals(id)){
             Log.i(TAG,"page finished:" + (String)data);
-            addScripts();
+            // addScripts();基础变量在这个时候设置有点晚了。
         }
-         return super.onMessage(id,data);
+        return super.onMessage(id,data);
     }
 //    @Override
 //    public boolean onKeyDown(int keyCode, KeyEvent event){
