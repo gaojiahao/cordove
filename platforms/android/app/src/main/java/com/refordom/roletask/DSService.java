@@ -227,6 +227,7 @@ public class DSService extends Service {
       Log.i(TAG,"msg:" + text);
       if (noticeBuiler == null){
          noticeBuiler = createBuilder("refordom.roletask.com.notice","消息通知");
+         noticeBuiler.setSmallIcon(R.mipmap.ic_launcher);// 如果不设置图标，会引发异常
       }
       noticeBuiler.setContentTitle(title);
       noticeBuiler.setContentText(text);
