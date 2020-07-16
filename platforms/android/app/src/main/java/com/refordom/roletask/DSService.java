@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -32,6 +33,7 @@ import io.deepstream.DeepstreamClient;
 import io.deepstream.EventListener;
 import io.deepstream.LoginResult;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
@@ -240,7 +242,8 @@ public class DSService extends Service {
       if(imType != 1 && imType != 2 && imType != 3 && imType != 4) return;//这一类是消息
       String creatorName = msg.has("creatorName") ? msg.get("creatorName").getAsString() : "";
       String title = String.format("来自%s的消息：",creatorName);
-      String text = msg.get("content").getAsString();
+      String content = msg.get("content").getAsString();
+      String text = content2Text(content,imType);
       String groupId = msg.get("groupId").getAsString();
       Boolean isMySelf = msg.get("isMySelf").getAsBoolean();
       if(isMySelf){
@@ -258,6 +261,39 @@ public class DSService extends Service {
       //channelId为本条通知的id
       NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
       manager.notify(NOTICE_ID,noticeBuiler.build());
+   }
+   private String content2Text(String content, int imType){
+      String text = "";
+      JsonElement contentObj = null;
+      if(imType != 1){
+         contentObj =  (new Gson()).fromJson(content,JsonElement.class);
+      }
+      switch(imType){
+         case 1:
+           text = content;
+           break;
+         case 2:
+            text = "[图片]";
+            JsonArray arr = contentObj.getAsJsonArray();
+            for(JsonElement msg:arr){
+               JsonObject m = msg.getAsJsonObject();
+               int subImType = m.get("imType").getAsInt();
+               if (subImType == '1'){
+                  text += m.get("content").getAsString();
+              } else if(subImType == '2'){
+                  text += "[图片]";
+              }  else if(subImType == '4'){
+                  text += "[文件]" + m.get("content").getAsString();
+              }
+            }
+            break;
+         case 3:
+            break;
+         case 4:
+            text = "[文件]" + contentObj.getAsJsonObject().get("content").getAsString();
+            break;
+      }
+      return text;
    }
    private void applyContentReceiver(Notification.Builder builder,String groupId) {
       Context context = getApplicationContext();
