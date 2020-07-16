@@ -45,6 +45,8 @@ public class DSService extends Service {
    private String packageName;
    private Notification.Builder noticeBuiler = null;
    private String CacheTag = "dsCache";
+   private String lastEvent;//订阅的事件
+   private EventListener lastEventLitener;
    private DeepstreamClient client;
    private  int progress;
    private ActionReceiver actionReceiver;
@@ -196,6 +198,7 @@ public class DSService extends Service {
       SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
       sp.edit().putString("url",url).putString("uid",uid).commit();
       if (client != null){
+         client.event.unsubscribe(lastEvent,lastEventLitener);
          client.close();
       }
       try {
@@ -222,8 +225,11 @@ public class DSService extends Service {
    }
    public void close(){
       SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
+      sp.edit().remove("uid").commit();
       if (client != null){
+         client.event.unsubscribe(lastEvent,lastEventLitener);
          client.close();
+         client = null;
       }
    }
    private Boolean doLogin(DeepstreamClient client,String uid){
@@ -308,7 +314,8 @@ public class DSService extends Service {
    }
    private void subscribeEvent(DeepstreamClient client,String uid) {
       String md5Str = encrypt(uid);
-      client.event.subscribe("roletaskIm/" + md5Str, new EventListener() {
+      lastEvent = "roletaskIm/" + md5Str;
+      client.event.subscribe(lastEvent, lastEventLitener = new EventListener() {
           @Override
           public void onEvent(String eventName, Object args) {
               JsonObject parameters = (JsonObject) args;
