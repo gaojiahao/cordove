@@ -1,5 +1,6 @@
 package com.refordom.roletask;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -7,6 +8,7 @@ import android.app.PendingIntent;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -22,10 +24,11 @@ import android.widget.Toast;
 
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
+import java.util.List;
 import java.util.Random;
 
+import io.deepstream.ConnectionState;
 import io.deepstream.DeepstreamClient;
-import io.deepstream.DeepstreamFactory;
 import io.deepstream.EventListener;
 import io.deepstream.LoginResult;
 
@@ -37,6 +40,7 @@ import com.refordom.roletask.MainActivity;
 public class DSService extends Service {
    private String TAG = "DSService";
    public static final int NOTICE_ID = 100;
+   private String packageName;
    private Notification.Builder noticeBuiler = null;
    private String CacheTag = "dsCache";
    private DeepstreamClient client;
@@ -50,6 +54,7 @@ public class DSService extends Service {
       super.onCreate();
       Log.i(TAG, "onCreate");
       //注册一个接收器，接收cordova要执行的动作。
+      packageName = getPackageName();
       registerReceive();
    }
    private void setForegroud(){
@@ -62,6 +67,17 @@ public class DSService extends Service {
       } else {
          startForeground(1,new Notification());
       }
+   }
+   public boolean isAppInForeground() {
+      ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+      List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
+      if (!tasks.isEmpty()) {
+         ComponentName topActivity = tasks.get(0).topActivity;
+         if (topActivity.getPackageName().equals(packageName)) {
+            return true;
+         }
+      }
+      return false;
    }
    private Notification.Builder createBuilder(String CHANNEL_ONE_ID ,String CHANNEL_ONE_NAME){
       Notification.Builder builder = new Notification.Builder(this);
@@ -177,14 +193,16 @@ public class DSService extends Service {
    public Boolean login(String url, String uid){
       SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
       sp.edit().putString("url",url).putString("uid",uid).commit();
-      DeepstreamFactory factory = DeepstreamFactory.getInstance();
       if (client != null){
          client.close();
       }
       try {
           Log.i(TAG,"connect,dsUrl:" + url);
-         client = factory.getClient(url);
+         client = new DeepstreamClient(url);
+         ConnectionState state = client.getConnectionState();
+         Log.i(TAG,"connect Status:" + state.toString());
          Boolean rs = doLogin(client,uid);
+         Log.i(TAG,String.format("login status:%b",rs));
          if(rs){
             subscribeEvent(client,uid);
             Log.i(TAG,"login success!");
@@ -195,6 +213,7 @@ public class DSService extends Service {
          return rs;
       } catch (URISyntaxException e) {
          //TODO: handle exception
+         Log.i(TAG,"login Exception");
       }
 
       return false;
@@ -203,7 +222,6 @@ public class DSService extends Service {
       SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
       if (client != null){
          client.close();
-         sp.edit().remove("uid").commit();
       }
    }
    private Boolean doLogin(DeepstreamClient client,String uid){
@@ -224,6 +242,11 @@ public class DSService extends Service {
       String title = String.format("来自%s的消息：",creatorName);
       String text = msg.get("content").getAsString();
       String groupId = msg.get("groupId").getAsString();
+      Boolean isMySelf = msg.get("isMySelf").getAsBoolean();
+      if(isMySelf){
+         Log.i(TAG,"自已发的消息，不再发通知！");
+         return;
+      }
       Log.i(TAG,"msg:" + text);
       if (noticeBuiler == null){
          noticeBuiler = createBuilder("refordom.roletask.com.notice","消息通知");
@@ -253,7 +276,11 @@ public class DSService extends Service {
           @Override
           public void onEvent(String eventName, Object args) {
               JsonObject parameters = (JsonObject) args;
-              doNotification(parameters);
+              if(!isAppInForeground()){
+                 doNotification(parameters);
+              } else {
+                 Log.i(TAG,"app正在运行,不再发通知！");
+              }
               intent.setAction("receiveMsg");
               intent.putExtra("msg", parameters.toString());
               sendBroadcast(intent);
@@ -271,6 +298,7 @@ public class DSService extends Service {
       public void onReceive(Context context, Intent intent) {
          //
          String act = intent.getStringExtra("action");
+         Log.i(TAG,"onReceive ,action:" + act);
          if (act != null && act.equals("login")){
             String url = intent.getStringExtra("url");
             String uid = intent.getStringExtra("uid");

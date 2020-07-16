@@ -30,6 +30,8 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.Random;
+
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 /**
@@ -40,6 +42,7 @@ public class DsService extends CordovaPlugin {
     private Intent intent = new Intent("com.refordom.roletask.ACTION");
     private MsgReceiver msgReceiver;
     public static final int NOTICE_ID = 101;
+    private final Random random = new Random();
     private CallbackContext msgCallbackContext = null;
     private CallbackContext notificationClickCallbackContext = null;
     private String notificationClickGroupId = null;
@@ -115,7 +118,9 @@ public class DsService extends CordovaPlugin {
          intent.putExtra("action","login");
         intent.putExtra("url",url);
         intent.putExtra("uid",uid);
+        intent.putExtra("t",random.nextInt());
         getContext().sendBroadcast(intent);
+        Log.i(TAG,"send login Broadcast");
         callbackContext.success("login");
     }
     private void close(CallbackContext callbackContext){
