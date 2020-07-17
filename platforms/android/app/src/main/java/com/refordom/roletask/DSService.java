@@ -77,6 +77,7 @@ public class DSService extends Service {
       List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
       if (!tasks.isEmpty()) {
          ComponentName topActivity = tasks.get(0).topActivity;
+         Log.i(TAG,"topActivity:" + topActivity.getClassName() + ",packageName:"+packageName);
          if (topActivity.getPackageName().equals(packageName)) {
             return true;
          }
@@ -280,20 +281,20 @@ public class DSService extends Service {
            break;
          case 2:
             text = "[图片]";
+            break;
+         case 3:
             JsonArray arr = contentObj.getAsJsonArray();
             for(JsonElement msg:arr){
                JsonObject m = msg.getAsJsonObject();
                int subImType = m.get("imType").getAsInt();
-               if (subImType == '1'){
+               if (subImType == 1){
                   text += m.get("content").getAsString();
-              } else if(subImType == '2'){
+               } else if(subImType == 2){
                   text += "[图片]";
-              }  else if(subImType == '4'){
-                  text += "[文件]" + m.get("content").getAsString();
-              }
+               }  else if(subImType == 4){
+                  text += "[文件]" + m.get("content").getAsJsonObject().get("content").getAsString();
+               }
             }
-            break;
-         case 3:
             break;
          case 4:
             text = "[文件]" + contentObj.getAsJsonObject().get("content").getAsString();
