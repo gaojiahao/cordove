@@ -77,9 +77,14 @@ public class DSService extends Service {
       List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
       if (!tasks.isEmpty()) {
          ComponentName topActivity = tasks.get(0).topActivity;
-         Log.i(TAG,"topActivity:" + topActivity.getClassName() + ",packageName:"+packageName);
-         if (topActivity.getPackageName().equals(packageName)) {
-            return true;
+//         Log.i(TAG,"topActivity:" + topActivity.getClassName() + ",packageName:"+packageName);
+         if (topActivity.getClassName().equals(packageName + ".MainActivity")) {
+            SharedPreferences sp = getSharedPreferences("activityStatus", MODE_MULTI_PROCESS);
+//            Boolean hasKey = sp.contains("isPause");
+            Boolean isPause = sp.getBoolean("isPause",true);
+//            Log.i(TAG,"haskey:" + hasKey.toString());
+//            Log.i(TAG,"isPause:" + isPause.toString());
+             return !isPause;
          }
       }
       return false;

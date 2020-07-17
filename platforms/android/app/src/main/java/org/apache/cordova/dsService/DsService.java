@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Binder;
 import android.os.Bundle;
@@ -43,12 +44,16 @@ public class DsService extends CordovaPlugin {
     private MsgReceiver msgReceiver;
     public static final int NOTICE_ID = 101;
     private final Random random = new Random();
+    private SharedPreferences statusSp;
     private CallbackContext msgCallbackContext = null;
     private CallbackContext notificationClickCallbackContext = null;
     private String notificationClickGroupId = null;
     protected void pluginInitialize() {
         Intent intent = cordova.getActivity().getIntent();
         Log.i(TAG,"pluginInitialize");
+        Context c = getContext();
+        statusSp = c.getSharedPreferences("activityStatus", c.MODE_MULTI_PROCESS);
+        statusSp.edit().putBoolean("isPause",false).commit();
         handlerRouter(intent);
         registryDsEvent();
     }
@@ -202,6 +207,14 @@ public class DsService extends CordovaPlugin {
     @Override
     public void onDestroy(){
         cordova.getActivity().unregisterReceiver(msgReceiver);
+    }
+    public void onPause(boolean multitasking) {
+        statusSp.edit().putBoolean("isPause",true).commit();
+        Log.i("DSService","on Pause:");
+    }
+    public void onResume(boolean multitasking) {
+        statusSp.edit().putBoolean("isPause",false).commit();
+        Log.i("DSService","on Resume");
     }
     /**
      * Returns the context of the activity.

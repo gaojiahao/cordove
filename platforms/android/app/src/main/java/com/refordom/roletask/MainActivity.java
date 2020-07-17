@@ -37,7 +37,6 @@ import de.appplant.cordova.plugin.notification.Builder;
 
 public class MainActivity extends CordovaActivity
 {
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
