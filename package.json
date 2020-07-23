@@ -9,6 +9,7 @@
     "test": "cordova run android --emulator --nobuild",
     "avd": "cd scripts & avd",
     "run": "node scripts/copy & cordova run android -device",
+    "build175":"cd platforms/android & gradlew assembleRefordom_175Debug",
     "install": "cd scripts & install"
   },
   "keywords": [
