@@ -265,15 +265,15 @@ android {
     productFlavors{
          refordom_172{//不能用数字开头
              applicationId 'com.roletask172'//不能用数字开头
-             resValue "string","app_name","172"
+            //  resValue "string","app_name","172"
          }
          refordom_175{
              applicationId 'com.roletask175'
-             resValue "string","app_name","175"
+            //  resValue "string","app_name","175"
          }
          refordom{
              applicationId 'refordom.roletask.com'
-             resValue "string","app_name","refordom"
+            //  resValue "string","app_name","refordom"
          }
     }
     sourceSets{
