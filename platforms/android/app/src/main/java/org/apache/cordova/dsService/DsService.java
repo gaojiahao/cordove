@@ -91,18 +91,21 @@ public class DsService extends CordovaPlugin {
     }
     private void handlerRouter(Intent intent){
         Bundle bundle = intent.getExtras();
-        if(bundle != null){
+        if(bundle != null && !bundle.isEmpty()){
             String groupId = bundle.getString("groupId");
-            if (notificationClickCallbackContext != null){
-                PluginResult result = new PluginResult(PluginResult.Status.OK, groupId);
-                result.setKeepCallback(true);
-                notificationClickCallbackContext.sendPluginResult(result);
-                Log.i(TAG, "notificationClickCallbackContext is not null");
-            } else {
-                notificationClickGroupId = groupId;
+            if(groupId != null) {
+                if (notificationClickCallbackContext != null) {
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, groupId);
+                    result.setKeepCallback(true);
+                    notificationClickCallbackContext.sendPluginResult(result);
+                    Log.i(TAG, "notificationClickCallbackContext is not null");
+                } else {
+                    notificationClickGroupId = groupId;
+                }
+                console("被拉起");
             }
-            console("被拉起");
-            Log.i(TAG, "bundle:" + groupId);
+            Log.i(TAG, "bundle:" + bundle.toString());
+
         } else {
             console("自启动");
         }
