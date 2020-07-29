@@ -1,10 +1,20 @@
 var exec = require('cordova/exec');
 
-exports.sayHellow = function (arg0, success, error) {
-    exec(success, error, 'DsService', 'sayHello', [arg0]);
+exports.getDsMsg = function (success, error) {
+    exec(success, error, 'DsService', 'getDsMsg', []);
 };
-exports.login = function (uid, success, error) {
+exports.getToken = function (success, error) {
+    exec(success, error, 'DsService', 'getToken', []);
+};
+exports.onNotificationClick = function(handler){
+    exec(handler,null,"DsService","onNotificationClick",null);
+}
+exports.login = function (dsUrl,uid,token,success, error) {
     var protocol = (window.baseURL||'').indexOf('https') == 0 ? 'wss':'ws',
         url = protocol + '://' + dsUrl;
-    exec(success, error, 'DsService', 'login', [url,uid]);
+        
+    exec(success, error, 'DsService', 'login', [url,uid,token]);
 };
+exports.close = function(success,error){
+    exec(success, error, 'DsService', 'close', []);
+}

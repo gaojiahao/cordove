@@ -49,6 +49,7 @@ public class MainActivity extends CordovaActivity
         }
         // Set by <content src="index.html" /> in config.xml
         loadUrl(launchUrl);
+        addScripts();
        // keepAlive();//保活
         startService(); //显式启动，后面会修改成隐式启动
     }
@@ -69,7 +70,7 @@ public class MainActivity extends CordovaActivity
             e.printStackTrace();
         }
         String serverUrl = properties.getProperty("serverUrl","");
-        String js = String.format("javascript:baseURL = '%s';",serverUrl);
+        String js = String.format("javascript:console.log('token:%s');",serverUrl);
         appView.loadUrlIntoView(js,false);
     }
     public void startService(){
@@ -81,14 +82,6 @@ public class MainActivity extends CordovaActivity
     }
     public  void stopService(){
         stopService(new Intent(getBaseContext(),DSService.class));
-    }
-    @Override
-    public Object onMessage(String id, Object data) {
-        if("onPageFinished".equals(id)){
-            Log.i(TAG,"page finished:" + (String)data);
-            // addScripts();基础变量在这个时候设置有点晚了。
-        }
-        return super.onMessage(id,data);
     }
 //    @Override
 //    public boolean onKeyDown(int keyCode, KeyEvent event){

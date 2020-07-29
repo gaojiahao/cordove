@@ -45,6 +45,7 @@ public class DsService extends CordovaPlugin {
     public static final int NOTICE_ID = 101;
     private final Random random = new Random();
     private SharedPreferences statusSp;
+    private SharedPreferences cacheSp;
     private CallbackContext msgCallbackContext = null;
     private CallbackContext notificationClickCallbackContext = null;
     private String notificationClickGroupId = null;
@@ -52,6 +53,7 @@ public class DsService extends CordovaPlugin {
         Intent intent = cordova.getActivity().getIntent();
         Log.i(TAG,"pluginInitialize");
         Context c = getContext();
+        cacheSp = c.getSharedPreferences("dsCache", c.MODE_PRIVATE);
         statusSp = c.getSharedPreferences("activityStatus", c.MODE_MULTI_PROCESS);
         statusSp.edit().putBoolean("isPause",false).commit();
         handlerRouter(intent);
@@ -76,6 +78,9 @@ public class DsService extends CordovaPlugin {
         } else if(action.equals("dsStatus")){
             this.getDsStatus(callbackContext);
             return  true;
+        } else if(action.equals("getToken")){
+            this.getToken(callbackContext);
+            return  true;
         }
         return false;
     }
@@ -88,6 +93,12 @@ public class DsService extends CordovaPlugin {
     }
     private  void getDsStatus(CallbackContext callbackContext){
 
+    }
+    private void getToken(CallbackContext callbackContext){
+        String token = cacheSp.getString("token",null);
+        Log.i(TAG,"get token:" + token);
+        PluginResult result = new PluginResult(PluginResult.Status.OK, token);
+        callbackContext.sendPluginResult(result);
     }
     private void handlerRouter(Intent intent){
         Bundle bundle = intent.getExtras();
@@ -123,10 +134,13 @@ public class DsService extends CordovaPlugin {
     private void login(JSONArray args, CallbackContext callbackContext) throws JSONException {
          String url = args.getString(0);
          String uid = args.getString(1);
+         String token = args.getString(2);
          intent.putExtra("action","login");
         intent.putExtra("url",url);
         intent.putExtra("uid",uid);
         intent.putExtra("t",random.nextInt());
+        Log.i(TAG,"set token:" + token);
+        cacheSp.edit().putString("token",token).commit();
         getContext().sendBroadcast(intent);
         Log.i(TAG,"send login Broadcast");
         callbackContext.success("login");

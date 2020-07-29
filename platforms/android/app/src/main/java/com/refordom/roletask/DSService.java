@@ -321,23 +321,17 @@ public class DSService extends Service {
       return text;
    }
    private void applyContentReceiver(Notification.Builder builder,String groupId){
-      Context context = getApplicationContext();
-      String className = getPackageName() + ".MainActivity";
-      Log.i(TAG,"class name:" + className);
-      try {
-          Class<?> mainActivity = Class.forName(className);
-          int reqCode = random.nextInt();
-          Intent intent = new Intent(getBaseContext(), mainActivity);
+       Context context = getApplicationContext();
 
-          Bundle bundle = new Bundle();
-          bundle.putString("groupId", groupId);
-          intent.putExtras(bundle);
-          PendingIntent contentIntent = PendingIntent.getActivity(
-                  context, reqCode, intent, FLAG_UPDATE_CURRENT);
-          builder.setContentIntent(contentIntent);
-      }catch (ClassNotFoundException e){
-          Log.i(TAG,className +"not find!");
-      }
+       int reqCode = random.nextInt();
+       Intent intent = new Intent(getBaseContext(), MainActivity.class);
+
+       Bundle bundle = new Bundle();
+       bundle.putString("groupId", groupId);
+       intent.putExtras(bundle);
+       PendingIntent contentIntent = PendingIntent.getActivity(
+               context, reqCode, intent, FLAG_UPDATE_CURRENT);
+       builder.setContentIntent(contentIntent);
    }
    private void subscribeEvent(DeepstreamClient client,String uid) {
       String md5Str = encrypt(uid);
