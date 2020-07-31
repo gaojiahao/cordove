@@ -11,6 +11,7 @@
     "prepare": "node scripts/copy & cordova  prepare android",
     "run": "node scripts/copy & cordova run android -device",
     "build175": "cd platforms/android & gradlew assembleRefordom_175Debug",
+    "build172": "cd platforms/android & gradlew assembleRefordom_172Debug",
     "buildrefordom": "cd platforms/android & gradlew assembleRefordomDebug",
     "install": "cd scripts & install"
   },
