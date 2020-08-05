@@ -74,11 +74,11 @@ public class MainActivity extends CordovaActivity
         appView.loadUrlIntoView(js,false);
     }
     public void startService(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(new Intent(getBaseContext(), DSService.class));
-        } else {
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            startForegroundService(new Intent(getBaseContext(), DSService.class));
+//        } else {
             startService(new Intent(getBaseContext(), DSService.class));
-        }
+//        }
     }
     public  void stopService(){
         stopService(new Intent(getBaseContext(),DSService.class));

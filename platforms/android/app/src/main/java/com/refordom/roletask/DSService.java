@@ -17,6 +17,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -45,6 +46,7 @@ import com.refordom.roletask.MainActivity;
 
 public class DSService extends Service {
    private String TAG = "DSService";
+   private PowerManager.WakeLock wakeLock;
    public static final int NOTICE_ID = 100;
    private String packageName;
    private Notification.Builder noticeBuiler = null;
@@ -61,9 +63,12 @@ public class DSService extends Service {
    public void onCreate() {
       super.onCreate();
       Log.i(TAG, "onCreate");
+       packageName = getPackageName();
       //注册一个接收器，接收cordova要执行的动作。
-      packageName = getPackageName();
-      registerReceive();
+       PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+       wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+       wakeLock.acquire();
+       registerReceive();
    }
    private void setForegroud(){
 
@@ -133,11 +138,12 @@ public class DSService extends Service {
    @Override
    public int onStartCommand(Intent intent,int flag, int startId){
       startThead();
-      setForegroud();//设置前台服务
+     // setForegroud();//设置前台服务
       return START_STICKY;
    }
    @Override
    public void onDestroy() {
+      wakeLock.release();
       super.onDestroy();
       Log.i(TAG, "onDestroy");
       Toast.makeText(this, "服务已经停止", Toast.LENGTH_LONG).show();
