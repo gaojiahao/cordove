@@ -275,6 +275,9 @@ android {
              applicationId 'refordom.roletask.com'
             //  resValue "string","app_name","refordom"
          }
+         jihonghui{
+             applicationId 'jihonghui.roletask.com'
+         }
     }
     sourceSets{
         refordom_172{
