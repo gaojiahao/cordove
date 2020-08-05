@@ -30,13 +30,17 @@ import java.util.Random;
 
 import io.deepstream.ConnectionState;
 import io.deepstream.DeepstreamClient;
+import io.deepstream.DeepstreamRuntimeErrorHandler;
+import io.deepstream.Event;
 import io.deepstream.EventListener;
 import io.deepstream.LoginResult;
+import io.deepstream.Topic;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
+
 import com.refordom.roletask.MainActivity;
 
 public class DSService extends Service {
@@ -53,7 +57,7 @@ public class DSService extends Service {
    private final Random random = new Random();
    private Intent intent = new Intent("com.refordom.roletask.RECEIVER");
 
-   @Override
+    @Override
    public void onCreate() {
       super.onCreate();
       Log.i(TAG, "onCreate");
@@ -62,8 +66,9 @@ public class DSService extends Service {
       registerReceive();
    }
    private void setForegroud(){
+
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2){
-         Notification.Builder builder = createBuilder("refordom.roletask.com.dsService","dsService");
+         Notification.Builder builder = createBuilder(packageName + ".dsService","dsService");
          //  builder.setSmallIcon(R.mipmap.ic_launcher); 如果不设置图标，就不会显示真实标题和内容
          builder.setContentTitle("keep App alive");
          builder.setContentText("Deamon Service is Run");
@@ -78,7 +83,7 @@ public class DSService extends Service {
       if (!tasks.isEmpty()) {
          ComponentName topActivity = tasks.get(0).topActivity;
 //         Log.i(TAG,"topActivity:" + topActivity.getClassName() + ",packageName:"+packageName);
-         if (topActivity.getClassName().equals(packageName + ".MainActivity")) {
+         if (topActivity.getPackageName().equals(packageName) && topActivity.getClassName().equals("com.refordom.roletask.MainActivity")) {
             SharedPreferences sp = getSharedPreferences("activityStatus", MODE_MULTI_PROCESS);
 //            Boolean hasKey = sp.contains("isPause");
             Boolean isPause = sp.getBoolean("isPause",true);
@@ -204,13 +209,19 @@ public class DSService extends Service {
       SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
       sp.edit().putString("url",url).putString("uid",uid).commit();
       if (client != null){
-         client.event.unsubscribe(lastEvent,lastEventLitener);
+         //client.event.unsubscribe(lastEvent,lastEventLitener);
          client.close();
       }
       try {
           Log.i(TAG,"connect,dsUrl:" + url);
          client = new DeepstreamClient(url);
          ConnectionState state = client.getConnectionState();
+         client.setRuntimeErrorHandler(new DeepstreamRuntimeErrorHandler() {
+             @Override
+             public void onException(Topic topic, Event event, String s) {
+                Log.i(TAG,"ds error: event," + event.name() + "| string," + s);
+             }
+         });
          Log.i(TAG,"connect Status:" + state.toString());
          Boolean rs = doLogin(client,uid);
          Log.i(TAG,String.format("login status:%b",rs));
@@ -257,14 +268,16 @@ public class DSService extends Service {
       String content = msg.get("content").getAsString();
       String text = content2Text(content,imType);
       String groupId = msg.get("groupId").getAsString();
-      Boolean isMySelf = msg.get("isMySelf").getAsBoolean();
-      if(isMySelf){
+      int isMySelf = msg.get("isMySelf").getAsInt();
+      if(isMySelf == 1){
          Log.i(TAG,"自已发的消息，不再发通知！");
          return;
+      } else {
+          Log.i(TAG,"msg:" + msg.toString());
       }
       Log.i(TAG,"msg:" + text);
       if (noticeBuiler == null){
-         noticeBuiler = createBuilder("refordom.roletask.com.notice","消息通知");
+         noticeBuiler = createBuilder(packageName + ".notice","消息通知");
          noticeBuiler.setSmallIcon(R.mipmap.ic_launcher);// 如果不设置图标，会引发异常
       }
       noticeBuiler.setContentTitle(title);
@@ -307,16 +320,18 @@ public class DSService extends Service {
       }
       return text;
    }
-   private void applyContentReceiver(Notification.Builder builder,String groupId) {
-      Context context = getApplicationContext();
-      int reqCode = random.nextInt();
-      Intent intent = new Intent(getBaseContext(),MainActivity.class);
-      Bundle bundle = new Bundle();
-      bundle.putString("groupId",groupId);
-      intent.putExtras(bundle);
-      PendingIntent contentIntent = PendingIntent.getActivity(
-              context, reqCode, intent, FLAG_UPDATE_CURRENT);
-      builder.setContentIntent(contentIntent);
+   private void applyContentReceiver(Notification.Builder builder,String groupId){
+       Context context = getApplicationContext();
+
+       int reqCode = random.nextInt();
+       Intent intent = new Intent(getBaseContext(), MainActivity.class);
+
+       Bundle bundle = new Bundle();
+       bundle.putString("groupId", groupId);
+       intent.putExtras(bundle);
+       PendingIntent contentIntent = PendingIntent.getActivity(
+               context, reqCode, intent, FLAG_UPDATE_CURRENT);
+       builder.setContentIntent(contentIntent);
    }
    private void subscribeEvent(DeepstreamClient client,String uid) {
       String md5Str = encrypt(uid);
