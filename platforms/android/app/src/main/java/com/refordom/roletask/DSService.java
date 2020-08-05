@@ -144,6 +144,7 @@ public class DSService extends Service {
    @Override
    public void onDestroy() {
       wakeLock.release();
+      unregisterReceiver(actionReceiver);
       super.onDestroy();
       Log.i(TAG, "onDestroy");
       Toast.makeText(this, "服务已经停止", Toast.LENGTH_LONG).show();
