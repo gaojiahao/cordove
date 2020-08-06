@@ -13,6 +13,7 @@
     "build175": "cd platforms/android & gradlew assembleRefordom_175Debug",
     "build172": "cd platforms/android & gradlew assembleRefordom_172Debug",
     "buildrefordom": "cd platforms/android & gradlew assembleRefordomDebug",
+    "buildjihonghui": "cd platforms/android & gradlew assembleJihonghuiDebug",
     "install": "cd scripts & install"
   },
   "keywords": [

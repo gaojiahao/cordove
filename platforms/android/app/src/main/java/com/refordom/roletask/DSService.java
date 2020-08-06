@@ -50,7 +50,7 @@ public class DSService extends Service {
    public static final int NOTICE_ID = 100;
    private String packageName;
    private Notification.Builder noticeBuiler = null;
-   private String CacheTag = "dsCache";
+   private SharedPreferences cacheSp;
    private String lastEvent;//订阅的事件
    private EventListener lastEventLitener;
    private DeepstreamClient client;
@@ -64,10 +64,11 @@ public class DSService extends Service {
       super.onCreate();
       Log.i(TAG, "onCreate");
        packageName = getPackageName();
-      //注册一个接收器，接收cordova要执行的动作。
+       cacheSp = getSharedPreferences("dsCache", MODE_PRIVATE); //缓存
        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
        wakeLock.acquire();
+      //注册一个接收器，接收cordova要执行的动作。
        registerReceive();
    }
    private void setForegroud(){
@@ -154,7 +155,6 @@ public class DSService extends Service {
          mManager.cancel(NOTICE_ID);
      }
       close();
-      stopForeground(true);//取消前台通知
      // 重启自己
      Intent intent = new Intent(getApplicationContext(), DSService.class);
      startService(intent);
@@ -204,17 +204,17 @@ public class DSService extends Service {
         }).start();
    }
    public void autoLogin(){
-      SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
-      String uid = sp.getString("uid",null);
+      String uid = cacheSp.getString("uid",null);
       if(uid != null){
-          String  url = sp.getString("url","");
+          String  url = cacheSp.getString("url","");
           Log.i(TAG,"autoLogin,url:" + url + ",uid:" + uid);
           login(url,uid);
+      } else {
+         Log.i(TAG,"uid is null");
       }
    }
    public Boolean login(String url, String uid){
-      SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
-      sp.edit().putString("url",url).putString("uid",uid).commit();
+      cacheSp.edit().putString("url",url).putString("uid",uid).commit();
       if (client != null){
          //client.event.unsubscribe(lastEvent,lastEventLitener);
          client.close();
@@ -237,7 +237,7 @@ public class DSService extends Service {
             Log.i(TAG,"login success!");
          } else {
             Log.i(TAG,"login fail!");
-            close();
+            close(true);
          }
          return rs;
       } catch (URISyntaxException e) {
@@ -248,8 +248,10 @@ public class DSService extends Service {
       return false;
    }
    public void close(){
-      SharedPreferences sp = getSharedPreferences(CacheTag, MODE_PRIVATE);
-      sp.edit().remove("uid").commit();
+       close(false);
+   }
+   public void close(boolean isRemoveUid){
+      if (isRemoveUid) cacheSp.edit().remove("uid").commit();
       if (client != null){
          client.event.unsubscribe(lastEvent,lastEventLitener);
          client.close();
@@ -376,7 +378,7 @@ public class DSService extends Service {
             Boolean rs = login(url,uid);
             Log.i(TAG,"login rs:" + rs);
          } else if(act.equals("close")){
-            close();
+            close(true);
          } else {
             Log.i(TAG, "action is null");
          }

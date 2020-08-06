@@ -77,7 +77,7 @@ public class MainActivity extends CordovaActivity
 //        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 //            startForegroundService(new Intent(getBaseContext(), DSService.class));
 //        } else {
-            startService(new Intent(getBaseContext(), DSService.class));
+            startService(new Intent(getApplicationContext(), DSService.class));
 //        }
     }
     public  void stopService(){
