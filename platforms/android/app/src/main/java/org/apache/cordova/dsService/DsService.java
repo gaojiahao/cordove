@@ -53,8 +53,8 @@ public class DsService extends CordovaPlugin {
         Intent intent = cordova.getActivity().getIntent();
         Log.i(TAG,"pluginInitialize");
         Context c = getContext();
-        cacheSp = c.getSharedPreferences("dsCache", c.MODE_PRIVATE);
-        statusSp = c.getSharedPreferences("activityStatus", c.MODE_MULTI_PROCESS);
+        cacheSp = c.getSharedPreferences("dsPluginCache", c.MODE_PRIVATE);//非共享模式，避免多个进程用一个名字，否则不会更新xml文件。
+        statusSp = c.getSharedPreferences("activityStatus", c.MODE_MULTI_PROCESS);//共享模式，可以跨进程使用。
         statusSp.edit().putBoolean("isPause",false).commit();
         handlerRouter(intent);
         registryDsEvent();
@@ -81,6 +81,10 @@ public class DsService extends CordovaPlugin {
         } else if(action.equals("getToken")){
             this.getToken(callbackContext);
             return  true;
+        } else if(action.equals("getCache")){
+            this.getCache(args,callbackContext);
+        } else if(action.equals("setCache")){
+            this.setCache(args,callbackContext);
         }
         return false;
     }
@@ -98,6 +102,22 @@ public class DsService extends CordovaPlugin {
         String token = cacheSp.getString("token",null);
         Log.i(TAG,"get token:" + token);
         PluginResult result = new PluginResult(PluginResult.Status.OK, token);
+        callbackContext.sendPluginResult(result);
+    }
+    private void getCache(JSONArray args,CallbackContext callbackContext) throws JSONException{
+        String key = args.getString(0);
+        String value = cacheSp.getString(key,null);
+        Log.i(TAG,"getCache," + key + ":" + value);
+        PluginResult result = new PluginResult(PluginResult.Status.OK, value);
+        callbackContext.sendPluginResult(result);
+    }
+    private void setCache(JSONArray args,CallbackContext callbackContext) throws JSONException{
+        String key = args.getString(0);
+        String value = args.getString(1);
+        SharedPreferences.Editor editor = cacheSp.edit();
+        boolean rs = editor.putString(key, value).commit();
+        Log.i(TAG,"setCache rs:" + rs);
+        PluginResult result = new PluginResult(rs ? PluginResult.Status.OK : PluginResult.Status.ERROR);
         callbackContext.sendPluginResult(result);
     }
     private void handlerRouter(Intent intent){

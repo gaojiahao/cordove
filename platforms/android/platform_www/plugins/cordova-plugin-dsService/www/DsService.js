@@ -19,5 +19,11 @@ exports.login = function (dsUrl,uid, token,success, error) {
 exports.close = function(success,error){
     exec(success, error, 'DsService', 'close', []);
 }
+exports.getCache = function(key,success,error){
+    exec(success,error,'DsService','getCache',[key]);
+}
+exports.setCache = function(key,value,success,error){
+    exec(success,error,'DsService','setCache',[key,value]);
+}
 
 });
