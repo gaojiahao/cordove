@@ -34,6 +34,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import de.appplant.cordova.plugin.notification.Builder;
+import com.tencent.smtt.sdk.QbSdk;
+
 
 public class MainActivity extends CordovaActivity
 {
@@ -52,6 +54,7 @@ public class MainActivity extends CordovaActivity
         addScripts();
        // keepAlive();//保活
         startService(); //显式启动，后面会修改成隐式启动
+       // x5test();
     }
     private void keepAlive(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -59,6 +62,24 @@ public class MainActivity extends CordovaActivity
         } else {
             startService(new Intent(this, DeskService.class));
         }
+    }
+    public void x5test(){
+        QbSdk.PreInitCallback cb = new QbSdk.PreInitCallback() {
+
+            @Override
+            public void onViewInitFinished(boolean arg0) {
+              // TODO Auto-generated method stub
+              //x5內核初始化完成的回调，为true表示x5内核加载成功，否则表示x5内核加载失败，会自动切换到系统内核。
+              Log.d("app", " onViewInitFinished is " + arg0);
+            }
+      
+            @Override
+            public void onCoreInitFinished() {
+              // TODO Auto-generated method stub
+            }
+          };
+      
+      QbSdk.initX5Environment(this, cb);
     }
     //添加js变量支持
     private void addScripts(){

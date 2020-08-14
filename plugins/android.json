@@ -34,6 +34,9 @@
     },
     "cordova-plugin-dsService": {
       "PACKAGE_NAME": "com.refordom.roletask"
+    },
+    "cordova-plugin-x5-webview": {
+      "PACKAGE_NAME": "com.refordom.roletask"
     }
   },
   "dependent_plugins": {

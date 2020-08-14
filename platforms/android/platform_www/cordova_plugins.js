@@ -275,6 +275,7 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
     "cordova-plugin-file-transfer": "1.7.1",
     "cordova-plugin-splashscreen": "5.0.3",
     "cordova-plugin-vibration": "3.1.1",
-    "cordova-plugin-dsService": "1.0.0"
+    "cordova-plugin-dsService": "1.0.0",
+    "cordova-plugin-x5-webview": "3.1.0"
   };
 });

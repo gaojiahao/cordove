@@ -47,6 +47,10 @@
             {
               "xml": "<feature name=\"DsService\"><param name=\"android-package\" value=\"org.apache.cordova.dsService.DsService\" /></feature>",
               "count": 1
+            },
+            {
+              "xml": "<preference name=\"webView\" value=\"org.jeremyup.cordova.x5engine.X5WebViewEngine\" />",
+              "count": 1
             }
           ]
         }
@@ -102,7 +106,23 @@
             },
             {
               "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
-              "count": 2
+              "count": 3
+            },
+            {
+              "xml": "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />",
+              "count": 1
+            },
+            {
+              "xml": "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\" />",
+              "count": 1
+            },
+            {
+              "xml": "<uses-permission android:name=\"android.permission.INTERNET\" />",
+              "count": 1
+            },
+            {
+              "xml": "<uses-permission android:name=\"android.permission.READ_PHONE_STATE\" />",
+              "count": 1
             }
           ],
           "application": [
@@ -148,6 +168,9 @@
       "PACKAGE_NAME": "com.refordom.roletask"
     },
     "cordova-plugin-dsService": {
+      "PACKAGE_NAME": "com.refordom.roletask"
+    },
+    "cordova-plugin-x5-webview": {
       "PACKAGE_NAME": "com.refordom.roletask"
     }
   },
@@ -428,6 +451,7 @@
     "cordova-plugin-file-transfer": "1.7.1",
     "cordova-plugin-splashscreen": "5.0.3",
     "cordova-plugin-vibration": "3.1.1",
-    "cordova-plugin-dsService": "1.0.0"
+    "cordova-plugin-dsService": "1.0.0",
+    "cordova-plugin-x5-webview": "3.1.0"
   }
 }
