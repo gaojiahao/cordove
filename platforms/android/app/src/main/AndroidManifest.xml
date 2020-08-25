@@ -23,6 +23,19 @@
         <service android:enabled="true" android:exported="true" android:name=".DeskService" android:process=":daemon_service" />
         <service android:enabled="true" android:exported="true" android:name=".CancelNoticeService" android:process=":service" />
         <service android:enabled="true" android:exported="true" android:name=".DSService" android:process=":DSService" />
+        <service android:name=".AuthenticationService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data android:name="android.accounts.AccountAuthenticator" android:resource="@xml/accountauthenticator" />
+        </service>
+        <service android:name=".SyncService">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter" android:resource="@xml/sync_adapter" />
+        </service>
+        <provider android:authorities="@string/account_provide" android:name=".SyncProvider" />
     </application>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -33,4 +46,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
 </manifest>

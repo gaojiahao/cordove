@@ -189,11 +189,8 @@ public class DSService extends Service {
                   autoLogin();
                }
                //发送Action为com.example.communication.RECEIVER的广播
-               intent.putExtra("status",status);
-               intent.putExtra("progress", progress);
                Log.i(TAG,"progress:" + String.format("%d",progress) + ",status:" + status);
-               sendBroadcast(intent);
-               try { 
+               try {
                   Thread.sleep(5000); 
                } catch (InterruptedException e) { 
                   e.printStackTrace(); 

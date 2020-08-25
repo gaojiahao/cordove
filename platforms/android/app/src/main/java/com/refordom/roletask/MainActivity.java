@@ -55,6 +55,8 @@ public class MainActivity extends CordovaActivity
        // keepAlive();//保活
         startService(); //显式启动，后面会修改成隐式启动
        // x5test();
+        AccountHelper.addAccount(this);//添加账户
+        AccountHelper.autoSyncAccount(this);//调用系统自动同步
     }
     private void keepAlive(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

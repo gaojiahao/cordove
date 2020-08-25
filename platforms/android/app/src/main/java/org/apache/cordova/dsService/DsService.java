@@ -276,12 +276,6 @@ public class DsService extends CordovaPlugin {
                     result.setKeepCallback(true);
                     msgCallbackContext.sendPluginResult(result);
                 }
-            } else {
-                int progress = intent.getIntExtra("progress", 0);
-                String status = intent.getStringExtra("status");
-                String str = String.format("来自service%d,status:%s",progress,status);
-                Toast.makeText(context,"service alive",Toast.LENGTH_LONG);
-                console(str);
             }
         }
      }
