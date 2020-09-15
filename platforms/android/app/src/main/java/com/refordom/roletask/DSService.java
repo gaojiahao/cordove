@@ -5,7 +5,6 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -20,9 +19,13 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
@@ -37,17 +40,12 @@ import io.deepstream.EventListener;
 import io.deepstream.LoginResult;
 import io.deepstream.Topic;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonArray;
-
-import com.refordom.roletask.MainActivity;
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 public class DSService extends Service {
    private String TAG = "DSService";
    private PowerManager.WakeLock wakeLock;
-   public static final int NOTICE_ID = 100;
+   public static final int NOTICE_ID = 1;
    private String packageName;
    private Notification.Builder noticeBuiler = null;
    private SharedPreferences cacheSp;
@@ -71,18 +69,29 @@ public class DSService extends Service {
       //注册一个接收器，接收cordova要执行的动作。
        registerReceive();
    }
+   /**
+    * 注册前台服务
+    */
    private void setForegroud(){
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2){
          Notification.Builder builder = createBuilder(packageName + ".dsService","dsService");
-         //  builder.setSmallIcon(R.mipmap.ic_launcher); 如果不设置图标，就不会显示真实标题和内容
-         builder.setContentTitle("keep App alive");
-         builder.setContentText("Deamon Service is Run");
-         startForeground(1, builder.build());
+//         builder.setSmallIcon(R.mipmap.ic_launcher); //如果不设置图标，就不会显示真实标题和内容
+//         builder.setContentTitle("keep App alive");
+//         builder.setContentText("Deamon Service is Run");
+         startForeground(NOTICE_ID, builder.build());
+         // 可以通过启动CancelNoticeService，将通知移除，oom_adj值不变
+         Intent intent = new Intent(getApplicationContext(), CancelNoticeService.class);
+         startService(intent);
+         Log.i(TAG,"start CancalNoticeService");
       } else {
-         startForeground(1,new Notification());
+         startForeground(NOTICE_ID,new Notification());
       }
    }
+   /**
+    * 判断是否运行在前台
+    * @return
+    */
    public boolean isAppInForeground() {
       ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
       List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
@@ -100,6 +109,12 @@ public class DSService extends Service {
       }
       return false;
    }
+   /**
+    * 消息构造器
+    * @param CHANNEL_ONE_ID
+    * @param CHANNEL_ONE_NAME
+    * @return
+    */
    private Notification.Builder createBuilder(String CHANNEL_ONE_ID ,String CHANNEL_ONE_NAME){
       Notification.Builder builder = new Notification.Builder(this);
       builder.setWhen(System.currentTimeMillis());
@@ -124,6 +139,9 @@ public class DSService extends Service {
       }
       return builder;
    }
+   /**
+    * 注册一个接收器，接收登陆退出指示。
+    */
    private void registerReceive(){
       actionReceiver = new ActionReceiver();
       IntentFilter intentFilter = new IntentFilter();
@@ -138,8 +156,9 @@ public class DSService extends Service {
    }
    @Override
    public int onStartCommand(Intent intent,int flag, int startId){
-      startThead();
-     // setForegroud();//设置前台服务
+      startThead();//判断用户登陆状态，用于登陆
+      Log.i(TAG,"onStartCommand");
+      setForegroud();//设置前台服务
       return START_STICKY;
    }
    @Override
@@ -150,15 +169,20 @@ public class DSService extends Service {
       Log.i(TAG, "onDestroy");
       Toast.makeText(this, "服务已经停止", Toast.LENGTH_LONG).show();
       // 如果Service被杀死，干掉通知
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-         NotificationManager mManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-         mManager.cancel(NOTICE_ID);
-     }
+//      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+//         NotificationManager mManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//         mManager.cancel(NOTICE_ID);
+//     }
       close();
      // 重启自己
      Intent intent = new Intent(getApplicationContext(), DSService.class);
      startService(intent);
    }
+   /**
+    * 加密用户id.
+    * @param dataStr
+    * @return
+    */
    public String encrypt(String dataStr) {
 		try {
 			MessageDigest m = MessageDigest.getInstance("MD5");
@@ -200,6 +224,9 @@ public class DSService extends Service {
           } 
         }).start();
    }
+   /**
+    * 自动登陆
+    */
    public void autoLogin(){
       String uid = cacheSp.getString("uid",null);
       if(uid != null){
@@ -266,6 +293,10 @@ public class DSService extends Service {
          return false;
       }
    }
+   /**
+    * 根据消息显示通知
+    * @param msg
+    */
    private void doNotification(JsonObject msg){
       int imType = msg.get("imType").getAsInt();
       if(imType != 1 && imType != 2 && imType != 3 && imType != 4) return;//这一类是消息
@@ -291,8 +322,14 @@ public class DSService extends Service {
       applyContentReceiver(noticeBuiler,groupId);
       //channelId为本条通知的id
       NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-      manager.notify(NOTICE_ID,noticeBuiler.build());
+      manager.notify(100,noticeBuiler.build());
    }
+   /**
+    * 消息内容转通知内容
+    * @param content
+    * @param imType
+    * @return
+    */
    private String content2Text(String content, int imType){
       String text = "";
       JsonElement contentObj = null;
@@ -326,6 +363,11 @@ public class DSService extends Service {
       }
       return text;
    }
+   /**
+    * 设置通知被点击时要发送的意图
+    * @param builder
+    * @param groupId
+    */
    private void applyContentReceiver(Notification.Builder builder,String groupId){
        Context context = getApplicationContext();
 
@@ -335,10 +377,16 @@ public class DSService extends Service {
        Bundle bundle = new Bundle();
        bundle.putString("groupId", groupId);
        intent.putExtras(bundle);
+
        PendingIntent contentIntent = PendingIntent.getActivity(
                context, reqCode, intent, FLAG_UPDATE_CURRENT);
        builder.setContentIntent(contentIntent);
    }
+   /**
+    * 订阅deepstream并根据消息显示通知。
+    * @param client
+    * @param uid
+    */
    private void subscribeEvent(DeepstreamClient client,String uid) {
       String md5Str = encrypt(uid);
       lastEvent = "roletaskIm/" + md5Str;

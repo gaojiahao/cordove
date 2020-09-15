@@ -1,4 +1,4 @@
-package com.refordom.roletask;
+package com.refordom.roletask.authentication;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;

@@ -1,4 +1,4 @@
-package com.refordom.roletask;
+package com.refordom.roletask.authentication;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -9,6 +9,11 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.refordom.roletask.R;
+
+/**
+ * 账号同步代码，添加帐号用
+ */
 public class AccountHelper {
     /**
      * 添加Account，需要"android.permission.GET_ACCOUNTS"权限

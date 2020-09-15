@@ -18,7 +18,7 @@
 */
 
 apply plugin: 'com.android.application'
-
+apply plugin: 'com.huawei.agconnect'
 buildscript {
     repositories {
         mavenCentral()
@@ -273,6 +273,7 @@ android {
          }
          refordom{
              applicationId 'refordom.roletask.com'
+             manifestPlaceholders = [vivoAppKey:"f120dadc097fd11dc11c5b7dfbbba0ce",vivoAppId:"104423427"]
             //  resValue "string","app_name","refordom"
          }
          jihonghui{
@@ -330,6 +331,8 @@ dependencies {
     implementation "com.android.support:support-v4:26.+"
     implementation "com.android.support:support-v4:27.+"
     // SUB-PROJECT DEPENDENCIES END
+     implementation 'com.huawei.hms:push:5.0.2.300'
+    implementation   files("libs/vivo_pushsdk-v2.9.0.0.aar")
 }
 
 def promptForReleaseKeyPassword() {

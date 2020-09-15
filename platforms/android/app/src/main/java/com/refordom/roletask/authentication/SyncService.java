@@ -1,4 +1,4 @@
-package com.refordom.roletask;
+package com.refordom.roletask.authentication;
 
 import android.accounts.Account;
 import android.app.Service;
@@ -11,7 +11,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
+/**
+ * 账号同步代码
+ */
 public class SyncService  extends Service {
     SyncAdapter syncAdapter;
     private static final String TAG = "SyncService";

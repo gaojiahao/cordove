@@ -1,4 +1,4 @@
-package com.refordom.roletask;
+package com.refordom.roletask.authentication;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -6,7 +6,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
+/**
+ * 账号同步代码
+ */
 public class SyncProvider  extends ContentProvider {
     @Override
     public boolean onCreate() {

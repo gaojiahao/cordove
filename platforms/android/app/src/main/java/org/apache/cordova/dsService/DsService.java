@@ -100,7 +100,6 @@ public class DsService extends CordovaPlugin {
     }
     private void getToken(CallbackContext callbackContext){
         String token = cacheSp.getString("token",null);
-        Log.i(TAG,"get token:" + token);
         PluginResult result = new PluginResult(PluginResult.Status.OK, token);
         callbackContext.sendPluginResult(result);
     }

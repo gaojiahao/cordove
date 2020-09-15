@@ -5,4 +5,6 @@
     <string name="activity_name">@string/launcher_name</string>
     <string name="account_type">com.roletask.refordom.account</string>
     <string name="account_provide">com.roletask.refordom.provider</string>
+    <string name="mi_app_id">2882303761518662658</string>
+    <string name="mi_app_key">5441866259658</string>
 </resources>
