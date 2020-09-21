@@ -1,9 +1,13 @@
 package com.refordom.roletask.push;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.refordom.roletask.Api;
+import com.refordom.roletask.MainActivity;
 import com.xiaomi.mipush.sdk.ErrorCode;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.xiaomi.mipush.sdk.MiPushCommandMessage;
@@ -66,6 +70,9 @@ public class MiPushReceiver extends PushMessageReceiver {
         if (MiPushClient.COMMAND_REGISTER.equals(command)) {
             if (message.getResultCode() == ErrorCode.SUCCESS) {
                 mRegId = cmdArg1;
+                SharedPreferences sp = context.getSharedPreferences(MainActivity.REFORDOM_CACHE, context.MODE_PRIVATE);
+                sp.edit().putString("pushToken",mRegId);
+                Api.refreshPushToken(Build.MANUFACTURER,mRegId);
                 Log.i(TAG,"onCommandResult:regId:" + mRegId);
             }
         } else if (MiPushClient.COMMAND_SET_ALIAS.equals(command)) {
@@ -100,6 +107,9 @@ public class MiPushReceiver extends PushMessageReceiver {
         if (MiPushClient.COMMAND_REGISTER.equals(command)) {
             if (message.getResultCode() == ErrorCode.SUCCESS) {
                 mRegId = cmdArg1;
+                SharedPreferences sp = context.getSharedPreferences(MainActivity.REFORDOM_CACHE, context.MODE_PRIVATE);
+                sp.edit().putString("pushToken",mRegId);
+                Api.refreshPushToken(Build.MANUFACTURER,mRegId);
                 Log.i(TAG,"onReceiveRegisterResult:regId:" + mRegId);
             }
         }

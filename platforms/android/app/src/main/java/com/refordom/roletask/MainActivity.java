@@ -25,19 +25,19 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 
 import org.apache.cordova.*;
+import org.json.JSONObject;
 
 import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -46,19 +46,17 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Properties;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.huawei.agconnect.config.AGConnectServicesConfig;
-import com.huawei.agconnect.config.LazyInputStream;
 import com.huawei.hms.aaid.HmsInstanceId;
 import com.huawei.hms.common.ApiException;
 import com.huawei.hms.push.HmsMessaging;
-import com.huawei.hms.utils.HMSPackageManager;
 import com.refordom.roletask.authentication.AccountHelper;
 import com.tencent.smtt.sdk.QbSdk;
 import com.vivo.push.IPushActionListener;
@@ -68,7 +66,9 @@ import com.xiaomi.mipush.sdk.MiPushClient;
 
 
 public class MainActivity extends CordovaActivity
-{   public static String TAG = "MainActivity";
+{
+    public static String TAG = "MainActivity";
+    public static final String REFORDOM_CACHE = "dsPluginCache";
     private AlertDialog dialog = null;
     private static final int NOT_NOTICE = 2;//如果勾选了不再询问
     private static final int REQUEST_CODE_WRITE_SETTINGS = 1;//写入权限requestCode
@@ -90,7 +90,6 @@ public class MainActivity extends CordovaActivity
         loadUrl(launchUrl);
         //addScripts();
        // keepAlive();//保活
-        startService(); //显式启动，后面会修改成隐式启动
        // x5test();
         initPush();//初始化厂商推送
         AccountHelper.addAccount(this);//添加账户
@@ -104,10 +103,11 @@ public class MainActivity extends CordovaActivity
         }
     }
     private void initPush(){
+        PostGetUtil.baseUrl  = getResources().getString(R.string.baseURL);//初始化url;
         String manufacturer = Build.MANUFACTURER;
         Log.i(TAG,"manufacturer:" + manufacturer);
         if(manufacturer.equals("HUAWEI")){
-            getToken();
+            initHwPush();
         }
         else if(manufacturer.equals("vivo")){
             initVivoPush();
@@ -115,8 +115,9 @@ public class MainActivity extends CordovaActivity
             Resources res = getResources();
             String APP_ID = res.getString(R.string.mi_app_id);
             String APP_KEY = res.getString(R.string.mi_app_key);
-            Log.i(TAG,"appid:" + APP_ID + "|appkey:" + APP_KEY);
             MiPushClient.registerPush(this, APP_ID, APP_KEY);
+        } else {
+            startService(); //显式启动,前台保活代码。
         }
     }
     private void initPermission(){
@@ -240,7 +241,7 @@ public class MainActivity extends CordovaActivity
         }
     }
 
-    private void getToken(){//hw
+    private void initHwPush(){//hw
         MainActivity content = this;
         new Thread() {
             @Override
@@ -268,7 +269,9 @@ public class MainActivity extends CordovaActivity
                     String token = HmsInstanceId.getInstance(getApplicationContext()).getToken(appId, "HCM");
                     Log.i(TAG, "get token:" + token);
                     if(!TextUtils.isEmpty(token)) {
-                        //sendRegTokenToServer(token);
+                        SharedPreferences sp = getSharedPreferences(MainActivity.REFORDOM_CACHE, MODE_PRIVATE);
+                        sp.edit().putString("pushToken",token);
+                       Api.refreshPushToken(Build.MANUFACTURER,token);
                     }
                 } catch (ApiException e) {
                     Log.e(TAG, "get token failed, " + e);
@@ -282,6 +285,28 @@ public class MainActivity extends CordovaActivity
             hmsMessaging.setAutoInitEnabled(true);
         }
     }
+    private void refreashPushToken(String manufacturer,String token){
+        SharedPreferences cacheSp = getSharedPreferences(REFORDOM_CACHE, MODE_PRIVATE);//非共享模式，避免多个进程用一个名字，否则不会更新xml文件。
+        String tokenJson = cacheSp.getString("token",null);
+        if(tokenJson != null){
+            JsonObject contentObj = (new Gson()).fromJson(tokenJson, JsonObject.class);
+            String httpToken = contentObj.get("token").getAsString();
+            PostGetUtil.token = httpToken;
+//            AsyncTask<String, Void, String> rs = new RefreshTokenTask();
+//            rs.execute(manufacturer, token);
+            new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    String res = Api.refreshPushToken(manufacturer,token);
+                    Log.i(TAG,"post rs:" + res);
+                }
+            }).start();
+        } else {
+            Log.i(TAG,"token is null");
+        }
+
+    }
     private void initVivoPush(){
         // 在当前工程入口函数，建议在Application的onCreate函数中，添加以下代码
         PushClient pushClient = PushClient.getInstance(getApplicationContext());
@@ -292,7 +317,7 @@ public class MainActivity extends CordovaActivity
              Log.i(TAG,e.getMessage());
         }
         if(pushClient.isSupport()){
-            Log.i(TAG,"支持推送");
+            Log.i(TAG,"支持vivo推送");
             // 打开push开关, 关闭为turnOffPush，详见api接入文档
             pushClient.turnOnPush(new IPushActionListener() {
                 @Override
@@ -303,10 +328,9 @@ public class MainActivity extends CordovaActivity
                     String regId = pushClient.getRegId();
                     if(!TextUtils.isEmpty(regId)){
                         Log.i(TAG,"regId:" + regId);
+                        refreashPushToken("vivo",regId);
                     }
-
                 }
-
             });
         }
     }
@@ -372,5 +396,14 @@ public class MainActivity extends CordovaActivity
 //        }
 //        return super.onKeyDown(keyCode, event);
 //    }
-
+//    public class RefreshTokenTask extends AsyncTask<String, Void, String> {
+//
+//        @Override
+//        protected String doInBackground(String... strings) {
+//            String test = PostGetUtil.sendGET("/H_roleplay-si/im/group/getMyGroups",null);
+//            Log.i(TAG,"test:" + test);
+//            String res = PostGetUtil.sendPost("/refreshPushToken", "manufacturer=" + strings[0] + "&token=" + strings[1]);
+//            return res;
+//        }
+//    }
 }

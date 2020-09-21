@@ -31,9 +31,9 @@
             android:launchMode="singleInstance"
             android:theme="@android:style/Theme.Translucent" />
 
-        <meta-data
+        <!--meta-data
             android:name="push_kit_auto_init_enabled"
-            android:value="true" /><!--华为push-->
+            android:value="true" /--><!--华为push,华为设置了一个content provideer,app启动时会调用获取token-->
         <provider
             android:name="de.appplant.cordova.plugin.notification.util.AssetProvider"
             android:authorities="${applicationId}.provider"
@@ -112,13 +112,13 @@
                 android:resource="@xml/sync_adapter" />
         </service>
         <!--华为的消息推送-->
-        <provider
+        <!--provider
             android:name="com.huawei.agconnect.core.provider.AGConnectInitializeProvider"
             android:authorities="${applicationId}.AGCInitializeProvider"
             android:exported="false" />
         <service
             android:name="com.huawei.agconnect.core.ServiceDiscovery"
-            android:exported="false" />
+            android:exported="false" -->
         <service
             android:name=".push.HwPushService"
             android:exported="false">

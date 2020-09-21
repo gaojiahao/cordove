@@ -17,57 +17,17 @@ import java.io.InputStream;
 
 public class CustomApplication extends Application{
     private static final String TAG = "CustomApplication";
+    private static boolean pause = false;
     @Override
     public void onCreate(){
         super.onCreate();
         //initVivoPush();
     }
-    private void initVivoPush(){
-        // 在当前工程入口函数，建议在Application的onCreate函数中，添加以下代码
-
-        PushClient pushClient = PushClient.getInstance(getApplicationContext());
-        pushClient.initialize();
-
-        // 打开push开关, 关闭为turnOffPush，详见api接入文档
-
-//        PushClient.getInstance(getApplicationContext()).turnOnPush(new IPushActionListener() {
-//
-//            @Override
-//
-//            public void onStateChanged(int state) {
-//
-//                // TODO: 开关状态处理， 0代表成功
-//                Log.i(TAG,"stat:"+ state);
-//                String regId = PushClient.getInstance(getApplicationContext()).getRegId();
-//                Log.i(TAG,"regId:" + regId);
-//
-//            }
-//
-//        });
-        try {
-            pushClient.checkManifest();
-        }catch (VivoPushException e){
-            Log.i(TAG,e.getMessage());
-        }
-        if(pushClient.isSupport()){
-            Log.i(TAG,"支持推送");
-            // 打开push开关, 关闭为turnOffPush，详见api接入文档
-            pushClient.turnOnPush(new IPushActionListener() {
-                @Override
-                public void onStateChanged(int state) {
-
-                    // TODO: 开关状态处理， 0代表成功
-                    Log.i(TAG,"push 功能打开" + (state == 0 ? "成功" : "失败"));
-                    Log.i(TAG,"state:" + state);
-                    String regId = pushClient.getRegId();
-                    if(!TextUtils.isEmpty(regId)){
-                        Log.i(TAG,"regId:" + regId);
-                    }
-
-                }
-
-            });
-        }
+    public boolean isPause(){
+        return pause;
+    }
+    public void setPause(boolean isPause){
+        pause = isPause;
     }
     @Override
     protected void attachBaseContext(Context context) {

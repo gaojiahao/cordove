@@ -5,4 +5,5 @@
     <string name="activity_name">@string/launcher_name</string>
     <string name="account_type">com.roletask.refordom.account</string>
     <string name="account_provide">com.roletask.refordom.provider</string>
+    <string name="baseURL">https://refordom.roletask.com</string>
 </resources>

@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.gson.JsonObject;
+import com.refordom.roletask.Api;
 import com.refordom.roletask.MainActivity;
 import com.refordom.roletask.R;
 
@@ -56,7 +58,7 @@ public class DsService extends CordovaPlugin {
         cacheSp = c.getSharedPreferences("dsPluginCache", c.MODE_PRIVATE);//非共享模式，避免多个进程用一个名字，否则不会更新xml文件。
         statusSp = c.getSharedPreferences("activityStatus", c.MODE_MULTI_PROCESS);//共享模式，可以跨进程使用。
         statusSp.edit().putBoolean("isPause",false).commit();
-        handlerRouter(intent);
+        handlerRouter(intent);//处理web的页面路由
         registryDsEvent();
     }
     @Override
@@ -160,6 +162,10 @@ public class DsService extends CordovaPlugin {
         intent.putExtra("t",random.nextInt());
         Log.i(TAG,"set token:" + token);
         cacheSp.edit().putString("token",token).commit();
+        Api.token = token;
+        if(cacheSp.contains("pushToken")){ //更新pushToken
+            Api.refreshPushToken(Build.MANUFACTURER,cacheSp.getString("pushToken",null));
+        }
         getContext().sendBroadcast(intent);
         Log.i(TAG,"send login Broadcast");
         callbackContext.success("login");
